@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.dao;
 
+import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -77,6 +78,18 @@ public class JdbcUserDao implements UserDao {
         }
 
         return true;
+    }
+    
+    private Transfer mapRowToTransfer(SqlRowSet rs)
+    {
+        Transfer transfer = new Transfer();
+        transfer.setTransferId(rs.getLong("transfer_id"));
+        transfer.setTransferStatus(rs.getInt("transfer_status_id"));
+        transfer.setTransferType(rs.getInt("transfer_type_id"));
+        
+        //todo: finish maprowtotransfer
+ 
+        return transfer;
     }
 
     private User mapRowToUser(SqlRowSet rs) {

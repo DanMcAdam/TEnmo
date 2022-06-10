@@ -1,6 +1,7 @@
 package com.techelevator.tenmo.services;
 
 
+import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.UserCredentials;
 
 import java.math.BigDecimal;
@@ -44,6 +45,74 @@ public class ConsoleService {
         System.out.println("5: Request TE bucks");
         System.out.println("0: Exit");
         System.out.println();
+    }
+    
+    public void printCurrentBalance(BigDecimal balance)
+    {
+        System.out.println("Your current account balance is: " + balance.toString());
+    }
+    
+    public void printTransferHistory(Transfer[] transfers, Long userID)
+    {
+        System.out.println("-------------------------------------------");
+        System.out.println("Transfers");
+        System.out.println("ID          From/To                 Amount");
+        System.out.println("-------------------------------------------");
+        for (int i = 0; i < transfers.length; i++)
+        {
+            String targetString = null;
+            if (userID == transfers[i].getAccountFrom())
+            {
+                targetString = "To: " + transfers[i].getAccountToString();
+            }
+            else
+            {
+                targetString = "From: " + transfers[i].getAccountFromString();
+            }
+            System.out.println(transfers[i].getTransferId() + "          " + targetString + "           " + transfers[i].getAmount().toString());
+        }
+    }
+    
+    public void printTransfer(int chosenInt, Transfer[] transfers, Long id)
+    {
+        Transfer chosenTransfer = null;
+        String transferType = null;
+        boolean userIsRecipient = false;
+        for (int i = 0; i < transfers.length; i++)
+        {
+            if (chosenInt == transfers[i].getTransferId().intValue())
+            {
+                //identifying the recipient here adds context to the printout
+                userIsRecipient = id == transfers[i].getAccountTo();
+                transferType = userIsRecipient
+                        ? "Recieve"
+                        : "Send";
+                userIsRecipient = transferType.equals("Recieve");
+                chosenTransfer = transfers[i];
+            }
+        }
+        System.out.println("--------------------------------------------");
+        System.out.println("Transfer Details");
+        System.out.println("--------------------------------------------");
+        if (chosenTransfer != null)
+        {
+            String fromString = userIsRecipient
+                    ? chosenTransfer.getAccountFromString()
+                    : "Me";
+            String toString = userIsRecipient
+                    ? "Me"
+                    : chosenTransfer.getAccountToString();
+            System.out.println("ID: " + chosenTransfer.getTransferId());
+            System.out.println("From: " + fromString);
+            System.out.println("To: " + toString);
+            System.out.println("Type: " + transferType);
+            System.out.println("Status: " + chosenTransfer.getTransferStatus());
+            System.out.println("Amount: " + chosenTransfer.getAmount());
+        }
+        else
+        {
+            System.out.println("You have not chosen a valid transfer ID");
+        }
     }
 
     public UserCredentials promptForCredentials() {
