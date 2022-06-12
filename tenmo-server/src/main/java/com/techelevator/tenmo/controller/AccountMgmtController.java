@@ -17,7 +17,7 @@ public class AccountMgmtController
     private UserDao userDao;
     
     @RequestMapping(path = "/{id}/balance", method = RequestMethod.GET)
-    public BigDecimal returnBalance (@PathVariable Long id, )
+    public BigDecimal returnBalance (@PathVariable Long id)
     {
         //todo hook this up
         return null;
