@@ -35,7 +35,7 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
-    public List<User> findAll() {
+    public User[] findAll() {
         List<User> users = new ArrayList<>();
         String sql = "SELECT user_id, username, password_hash FROM tenmo_user;";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
@@ -43,7 +43,11 @@ public class JdbcUserDao implements UserDao {
             User user = mapRowToUser(results);
             users.add(user);
         }
-        return users;
+        User[] users1 = new User[users.size()];
+        for (int i = 0; i < users.size(); i++) {
+            users1[i] = users.get(i);
+        }
+        return users1;
     }
 
     @Override
@@ -79,6 +83,39 @@ public class JdbcUserDao implements UserDao {
 
         return true;
     }
+
+    @Override
+    public void decrementBalanceUpdate(BigDecimal amountToSend, long currentUserId) {
+        String sql = "UPDATE account SET balance = balance - ? " +
+                "WHERE account.user_id = ? RETURNING balance;";
+        String search = amountToSend + "%" + currentUserId + "%";
+        try {
+            jdbcTemplate.update(sql + search, Transfer.class);
+        } catch (DataAccessException ignored) {} // build logger class, or import BasicLogger;
+    }
+
+    @Override
+    public void incrementBalance(BigDecimal amountToSend, long recipientId) {
+        String sql = "UPDATE account SET balance = balance + ? " +
+                "WHERE account.user_id = ? RETURNING balance;";
+        String search = amountToSend + "%" + recipientId + "%";
+        try {
+            jdbcTemplate.update(sql + search, Transfer.class);
+        } catch (DataAccessException ignore) {}
+    }
+
+    @Override
+    public BigDecimal getBalance(long id) {
+        String sql = "SELECT balance FROM account WHERE user_id = ?";
+        BigDecimal balance = null;
+        try {
+            balance = jdbcTemplate.queryForObject(sql, BigDecimal.class, id);
+        } catch (DataAccessException e) {
+            System.out.println("Error accessing database");
+        }
+            return balance;
+    }
+
     
     private Transfer mapRowToTransfer(SqlRowSet rs)
     {
