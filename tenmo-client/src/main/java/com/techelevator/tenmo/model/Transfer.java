@@ -5,8 +5,8 @@ import java.math.BigDecimal;
 public class Transfer
 {
     //transfer status is stored as an int on transfer table, int (transferStatus - 1) correlates to String status
-    private final String[] TRANSFER_STATUS_DESCRIPTION = new String[] {"Pending", "Approved", "Rejected"};
-    
+    private String[] TRANSFER_STATUS_DESCRIPTION = new String[] {"Pending", "Approved", "Rejected"};
+
     private int transferStatus;
     private Long transferId;
     private Long accountFrom;
@@ -15,6 +15,26 @@ public class Transfer
     private String accountToString;
     private BigDecimal amount;
     private boolean transferIsRequest;
+
+    public Transfer(int transferStatus, Long transferId, Long accountFrom, Long accountTo, String accountFromString, String accountToString, BigDecimal amount, boolean transferIsRequest, String[] TRANSFER_STATUS_DESCRIPTION) {
+        this.TRANSFER_STATUS_DESCRIPTION = TRANSFER_STATUS_DESCRIPTION;
+        this.transferStatus = transferStatus;
+        this.transferId = transferId;
+        this.accountFrom = accountFrom;
+        this.accountTo = accountTo;
+        this.accountFromString = accountFromString;
+        this.accountToString = accountToString;
+        this.amount = amount;
+        this.transferIsRequest = transferIsRequest;
+    }
+
+    public Transfer(Long accountFrom, Long accountTo, BigDecimal amount) {
+        this.accountFrom = accountFrom;
+        this.accountTo = accountTo;
+        this.amount = amount;
+    }
+
+    public Transfer() {}
     
     //<editor-fold desc="Setters">
     public void setTransferStatus(int transferStatus)

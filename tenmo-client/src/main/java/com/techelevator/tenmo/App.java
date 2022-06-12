@@ -1,31 +1,31 @@
 package com.techelevator.tenmo;
 
-import com.techelevator.tenmo.model.AuthenticatedUser;
-import com.techelevator.tenmo.model.Transfer;
-import com.techelevator.tenmo.model.UserCredentials;
+import com.techelevator.tenmo.dao.JdbcUserDao;
+import com.techelevator.tenmo.model.*;
 import com.techelevator.tenmo.services.AccountMgmtService;
 import com.techelevator.tenmo.services.AuthenticationService;
 import com.techelevator.tenmo.services.ConsoleService;
+import com.techelevator.util.BasicLogger;
+import org.springframework.web.client.ResourceAccessException;
 
-public class App
-{
+import java.math.BigDecimal;
+
+public class App {
     
     private static final String API_BASE_URL = "http://localhost:8080/";
     
     private final ConsoleService consoleService = new ConsoleService();
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
-    
+    private JdbcUserDao jdbcUserDao;
     private AuthenticatedUser currentUser;
     private AccountMgmtService accountMgmtService;
     
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) {
         App app = new App();
         app.run();
     }
     
-    private void run()
-    {
+    private void run() {
         consoleService.printGreeting();
         loginMenu();
         if (currentUser != null)
@@ -34,8 +34,7 @@ public class App
         }
     }
     
-    private void loginMenu()
-    {
+    private void loginMenu() {
         int menuSelection = -1;
         while (menuSelection != 0 && currentUser == null)
         {
@@ -140,11 +139,15 @@ public class App
         // TODO Auto-generated method stub
         
     }
-    
-    private void sendBucks()
-    {
-        // TODO Auto-generated method stub
-        
+
+
+    // decided to return a boolean because it's a PUT method.
+    private void sendBucks() {
+        consoleService.printSendMoneyMenu(accountMgmtService.getUserList());
+        long receiverId = consoleService.promptForInt("Enter ID of user you are sending to (0 to cancel): ");
+        BigDecimal amountToSend = consoleService.promptForBigDecimal("Enter amount: ");
+        accountMgmtService.sendBucks(currentUser.getUser().getId(), receiverId, amountToSend);
+        mainMenu();
     }
     
     private void requestBucks()

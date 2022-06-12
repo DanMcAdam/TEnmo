@@ -2,12 +2,9 @@ package com.techelevator.tenmo.services;
 
 import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.User;
 import com.techelevator.util.BasicLogger;
-import net.bytebuddy.asm.Advice;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
@@ -18,6 +15,7 @@ public class AccountMgmtService
 {
     private final String baseUrl;
     private final RestTemplate restTemplate = new RestTemplate();
+
     
     private AuthenticatedUser user;
     
@@ -54,6 +52,35 @@ public class AccountMgmtService
         }
         return returnTransfer;
     }
+
+    public void sendBucks(long currentUserId, long recipientId, BigDecimal amountToSend) {
+        Transfer transfer = new Transfer(currentUserId, recipientId, amountToSend);
+        try
+        {
+            restTemplate.put(baseUrl, HttpMethod.PUT, makeAuthEntityTransfer(transfer));
+
+        } catch (RestClientResponseException | ResourceAccessException e)
+        {
+            BasicLogger.log(e.getMessage());
+        }
+    }
+
+    public User[] getUserList() {
+        User[] returnUser = null;
+
+        try
+        {
+            ResponseEntity<User[]> response = restTemplate.exchange(baseUrl, HttpMethod.GET, makeAuthEntity(), User[].class);
+            returnUser = response.getBody();
+        } catch (RestClientResponseException | ResourceAccessException e)
+        {
+            BasicLogger.log(e.getMessage());
+        }
+        if (returnUser == null) {
+            return new User[1];
+        }
+        return returnUser;
+    }
     
     
     
@@ -62,6 +89,14 @@ public class AccountMgmtService
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(user.getToken());
         return new HttpEntity<>(headers);
+    }
+
+    private HttpEntity<Transfer> makeAuthEntityTransfer(Transfer transfer)
+    {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(user.getToken());
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        return new HttpEntity<>(transfer, headers);
     }
     
 }

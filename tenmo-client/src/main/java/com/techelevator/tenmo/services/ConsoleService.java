@@ -2,6 +2,7 @@ package com.techelevator.tenmo.services;
 
 
 import com.techelevator.tenmo.model.Transfer;
+import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.model.UserCredentials;
 
 import java.math.BigDecimal;
@@ -80,13 +81,10 @@ public class ConsoleService {
         boolean userIsRecipient = false;
         for (int i = 0; i < transfers.length; i++)
         {
-            if (chosenInt == transfers[i].getTransferId().intValue())
-            {
+            if (chosenInt == transfers[i].getTransferId().intValue()) {
                 //identifying the recipient here adds context to the printout
                 userIsRecipient = id == transfers[i].getAccountTo();
-                transferType = userIsRecipient
-                        ? "Recieve"
-                        : "Send";
+                transferType = userIsRecipient ? "Recieve" : "Send";
                 userIsRecipient = transferType.equals("Recieve");
                 chosenTransfer = transfers[i];
             }
@@ -96,12 +94,8 @@ public class ConsoleService {
         System.out.println("--------------------------------------------");
         if (chosenTransfer != null)
         {
-            String fromString = userIsRecipient
-                    ? chosenTransfer.getAccountFromString()
-                    : "Me";
-            String toString = userIsRecipient
-                    ? "Me"
-                    : chosenTransfer.getAccountToString();
+            String fromString = userIsRecipient ? chosenTransfer.getAccountFromString() : "Me";
+            String toString = userIsRecipient ? "Me" : chosenTransfer.getAccountToString();
             System.out.println("ID: " + chosenTransfer.getTransferId());
             System.out.println("From: " + fromString);
             System.out.println("To: " + toString);
@@ -113,6 +107,18 @@ public class ConsoleService {
         {
             System.out.println("You have not chosen a valid transfer ID");
         }
+    }
+
+    public void printSendMoneyMenu(User[] users) {
+        System.out.println("-------------------------------------------");
+        System.out.println("Users");
+        System.out.println("ID        Name");
+        System.out.println("-------------------------------------------");
+        for (User user :
+                users) {
+            System.out.println(user.getId() + "        " + user.getUsername());
+        }
+        System.out.println("-------------------------------------------");
     }
 
     public UserCredentials promptForCredentials() {
