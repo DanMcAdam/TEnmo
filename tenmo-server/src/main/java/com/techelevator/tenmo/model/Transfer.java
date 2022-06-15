@@ -1,23 +1,27 @@
 package com.techelevator.tenmo.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.math.BigDecimal;
 
 public class Transfer
 {
     //transfer status is stored as an int on transfer table, int (transferStatus - 1) correlates to String status
-    private String[] TRANSFER_STATUS_DESCRIPTION = new String[] {"Pending", "Approved", "Rejected"};
-
+    @JsonIgnore
+    private final static String[] TRANSFER_STATUS_DESCRIPTION = new String[]{"Pending", "Approved", "Rejected"};
+    
     private int transferStatus;
     private Long transferId;
     private Long accountFrom;
     private Long accountTo;
-    private String accountFromString;
-    private String accountToString;
+    private String accountFromString = null;
+    private String accountToString = null;
     private BigDecimal amount;
     private boolean transferIsRequest;
-
-    public Transfer(int transferStatus, Long transferId, Long accountFrom, Long accountTo, String accountFromString, String accountToString, BigDecimal amount, boolean transferIsRequest, String[] TRANSFER_STATUS_DESCRIPTION) {
-        this.TRANSFER_STATUS_DESCRIPTION = TRANSFER_STATUS_DESCRIPTION;
+    
+    public Transfer(int transferStatus, Long transferId, Long accountFrom, Long accountTo, String accountFromString, String accountToString, BigDecimal amount, boolean transferIsRequest)
+    {
         this.transferStatus = transferStatus;
         this.transferId = transferId;
         this.accountFrom = accountFrom;
@@ -27,63 +31,28 @@ public class Transfer
         this.amount = amount;
         this.transferIsRequest = transferIsRequest;
     }
-
-    public Transfer(Long accountFrom, Long accountTo, BigDecimal amount) {
+    
+    public Transfer(Long accountFrom, Long accountTo, BigDecimal amount)
+    {
         this.accountFrom = accountFrom;
         this.accountTo = accountTo;
         this.amount = amount;
     }
-
-    public Transfer() {}
     
-    //<editor-fold desc="Setters">
+    public Transfer()
+    {
+    }
+    
+    //<editor-fold desc="Setters and Getters">
+    
+    public int getTransferStatus()
+    {
+        return transferStatus;
+    }
+    
     public void setTransferStatus(int transferStatus)
     {
         this.transferStatus = transferStatus;
-    }
-    
-    public void setTransferId(Long transferId)
-    {
-        this.transferId = transferId;
-    }
-    
-    public void setAccountFrom(Long accountFrom)
-    {
-        this.accountFrom = accountFrom;
-    }
-    
-    public void setAccountTo(Long accountTo)
-    {
-        this.accountTo = accountTo;
-    }
-    
-    public void setAccountFromString(String accountFromString)
-    {
-        this.accountFromString = accountFromString;
-    }
-    
-    public void setAccountToString(String accountToString)
-    {
-        this.accountToString = accountToString;
-    }
-    
-    public void setAmount(BigDecimal amount)
-    {
-        this.amount = amount;
-    }
-    
-    public void setTransferType(int transferType)
-    {
-        if (transferType == 1) transferIsRequest = true;
-        else transferIsRequest = false;
-    }
-    //</editor-fold>
-    
-    //<editor-fold desc="Getters">
-    
-    public String getTransferStatus()
-    {
-        return TRANSFER_STATUS_DESCRIPTION[transferStatus - 1];
     }
     
     public Long getTransferId()
@@ -91,9 +60,19 @@ public class Transfer
         return transferId;
     }
     
+    public void setTransferId(Long transferId)
+    {
+        this.transferId = transferId;
+    }
+    
     public Long getAccountFrom()
     {
         return accountFrom;
+    }
+    
+    public void setAccountFrom(Long accountFrom)
+    {
+        this.accountFrom = accountFrom;
     }
     
     public Long getAccountTo()
@@ -101,9 +80,19 @@ public class Transfer
         return accountTo;
     }
     
+    public void setAccountTo(Long accountTo)
+    {
+        this.accountTo = accountTo;
+    }
+    
     public String getAccountFromString()
     {
         return accountFromString;
+    }
+    
+    public void setAccountFromString(String accountFromString)
+    {
+        this.accountFromString = accountFromString;
     }
     
     public String getAccountToString()
@@ -111,9 +100,19 @@ public class Transfer
         return accountToString;
     }
     
+    public void setAccountToString(String accountToString)
+    {
+        this.accountToString = accountToString;
+    }
+    
     public BigDecimal getAmount()
     {
         return amount;
+    }
+    
+    public void setAmount(BigDecimal amount)
+    {
+        this.amount = amount;
     }
     
     public boolean isTransferIsRequest()
@@ -121,6 +120,11 @@ public class Transfer
         return transferIsRequest;
     }
     
+    public void setTransferIsRequest(boolean transferIsRequest)
+    {
+        this.transferIsRequest = transferIsRequest;
+    }
+
     //</editor-fold>
     
     

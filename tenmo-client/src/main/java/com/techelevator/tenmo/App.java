@@ -1,6 +1,5 @@
 package com.techelevator.tenmo;
 
-import com.techelevator.tenmo.dao.JdbcUserDao;
 import com.techelevator.tenmo.model.*;
 import com.techelevator.tenmo.services.AccountMgmtService;
 import com.techelevator.tenmo.services.AuthenticationService;
@@ -16,7 +15,6 @@ public class App {
     
     private final ConsoleService consoleService = new ConsoleService();
     private final AuthenticationService authenticationService = new AuthenticationService(API_BASE_URL);
-    private JdbcUserDao jdbcUserDao;
     private AuthenticatedUser currentUser;
     private AccountMgmtService accountMgmtService;
     

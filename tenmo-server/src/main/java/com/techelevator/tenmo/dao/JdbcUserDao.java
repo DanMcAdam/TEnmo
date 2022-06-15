@@ -90,7 +90,7 @@ public class JdbcUserDao implements UserDao {
                 "WHERE account.user_id = ? RETURNING balance;";
         String search = amountToSend + "%" + currentUserId + "%";
         try {
-            jdbcTemplate.update(sql + search, Transfer.class);
+            jdbcTemplate.update(sql, amountToSend, currentUserId);
         } catch (DataAccessException ignored) {} // build logger class, or import BasicLogger;
     }
 
@@ -100,7 +100,7 @@ public class JdbcUserDao implements UserDao {
                 "WHERE account.user_id = ? RETURNING balance;";
         String search = amountToSend + "%" + recipientId + "%";
         try {
-            jdbcTemplate.update(sql + search, Transfer.class);
+            jdbcTemplate.update(sql, amountToSend, recipientId);
         } catch (DataAccessException ignore) {}
     }
 
@@ -122,7 +122,6 @@ public class JdbcUserDao implements UserDao {
         Transfer transfer = new Transfer();
         transfer.setTransferId(rs.getLong("transfer_id"));
         transfer.setTransferStatus(rs.getInt("transfer_status_id"));
-        transfer.setTransferType(rs.getInt("transfer_type_id"));
         
         //todo: finish maprowtotransfer
  
