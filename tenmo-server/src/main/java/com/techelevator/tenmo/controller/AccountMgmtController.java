@@ -15,15 +15,13 @@ import java.math.BigDecimal;
 public class AccountMgmtController
 {
     @Autowired
-    
     private UserDao userDao;
     public AccountMgmtController(UserDao userDao) {
         this.userDao = userDao;
     }
     
     @RequestMapping(path = "/{id}/balance", method = RequestMethod.GET)
-    public BigDecimal returnBalance (@PathVariable Long id)
-    {
+    public BigDecimal returnBalance (@PathVariable Long id) {
         return userDao.getBalance(id);
     }
 
@@ -35,6 +33,7 @@ public class AccountMgmtController
             if (money.compareTo(userDao.getBalance(transfer.getAccountFrom())) <= 0) {
                 System.out.println("Balance is more than amount to transfer!");
                 if (!transfer.getAccountFrom().equals(transfer.getAccountTo())) {
+                    // does this method allow transfers of 0 or negative?
                     userDao.decrementBalanceUpdate(transfer.getAmount(), transfer.getAccountFrom());
                     userDao.incrementBalance(transfer.getAmount(), transfer.getAccountTo());
                     transfer.setTransferStatus(1);
@@ -44,6 +43,16 @@ public class AccountMgmtController
         } catch (ResourceAccessException e) {
             System.err.println("try again!");
         }
+    }
+
+    @PostMapping
+    public void sendRequest(@RequestBody Transfer transfer) {
+        // post a transfer to specific ID
+        long currentUser = transfer.getAccountFrom();
+        long transferType = transfer.getTransferStatus();
+        long recipientId = transfer.getAccountTo();
+        BigDecimal moneyRequested = transfer.getAmount();
+        userDao.pendingStatus(currentUser, transferType, recipientId, moneyRequested);
     }
 
     @GetMapping

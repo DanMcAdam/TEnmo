@@ -68,12 +68,10 @@ public class App {
         }
     }
     
-    private void handleLogin()
-    {
+    private void handleLogin() {
         UserCredentials credentials = consoleService.promptForCredentials();
         currentUser = authenticationService.login(credentials);
-        if (currentUser == null)
-        {
+        if (currentUser == null) {
             consoleService.printErrorMessage();
         }
         accountMgmtService = new AccountMgmtService(API_BASE_URL, currentUser);
@@ -148,10 +146,26 @@ public class App {
         mainMenu();
     }
     
-    private void requestBucks()
-    {
-        // TODO Auto-generated method stub
-        
+    private void requestBucks() {
+        consoleService.printRequestMoneyMenu(accountMgmtService.getUserList());
+        long receiverId = consoleService.promptForInt("Enter ID of user you are sending to (0 to cancel): ");
+        BigDecimal amountToReceive = consoleService.promptForBigDecimal("Enter amount: ");
+        accountMgmtService.requestBucks(currentUser.getUser().getId(), receiverId, amountToReceive);
+        mainMenu();
     }
     
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+

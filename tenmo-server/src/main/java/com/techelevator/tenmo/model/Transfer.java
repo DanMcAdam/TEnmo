@@ -4,13 +4,13 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class Transfer
 {
     //transfer status is stored as an int on transfer table, int (transferStatus - 1) correlates to String status
     @JsonIgnore
     private final static String[] TRANSFER_STATUS_DESCRIPTION = new String[]{"Pending", "Approved", "Rejected"};
-    
     private int transferStatus;
     private Long transferId;
     private Long accountFrom;
@@ -19,6 +19,7 @@ public class Transfer
     private String accountToString = null;
     private BigDecimal amount;
     private boolean transferIsRequest;
+//    private List<Pending> pendingList;
     
     public Transfer(int transferStatus, Long transferId, Long accountFrom, Long accountTo, String accountFromString, String accountToString, BigDecimal amount, boolean transferIsRequest)
     {
@@ -32,16 +33,13 @@ public class Transfer
         this.transferIsRequest = transferIsRequest;
     }
     
-    public Transfer(Long accountFrom, Long accountTo, BigDecimal amount)
-    {
+    public Transfer(Long accountFrom, Long accountTo, BigDecimal amount) {
         this.accountFrom = accountFrom;
         this.accountTo = accountTo;
         this.amount = amount;
     }
     
-    public Transfer()
-    {
-    }
+    public Transfer() {}
     
     //<editor-fold desc="Setters and Getters">
     

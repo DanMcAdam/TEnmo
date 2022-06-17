@@ -15,8 +15,6 @@ public class AccountMgmtService
 {
     private final String baseUrl;
     private final RestTemplate restTemplate = new RestTemplate();
-
-    
     private AuthenticatedUser user;
     
     public AccountMgmtService(String url, AuthenticatedUser user)
@@ -25,15 +23,12 @@ public class AccountMgmtService
         this.user = user;
     }
     
-    public BigDecimal viewCurrentBalance()
-    {
+    public BigDecimal viewCurrentBalance() {
         BigDecimal returnDecimal = BigDecimal.valueOf(0);
-        try
-        {
+        try {
             ResponseEntity<BigDecimal> response = restTemplate.exchange(baseUrl + user.getUser().getId() + "/balance", HttpMethod.GET, makeAuthEntity(), BigDecimal.class);
             returnDecimal = response.getBody();
-        } catch (RestClientResponseException | ResourceAccessException e)
-        {
+        } catch (RestClientResponseException | ResourceAccessException e) {
             BasicLogger.log(e.getMessage());
         }
         return returnDecimal;
@@ -65,6 +60,15 @@ public class AccountMgmtService
         }
     }
 
+    public void requestBucks(long currentUserId, long recipientId, BigDecimal amountToReceive) {
+        Transfer transfer = new Transfer(0, null, currentUserId, recipientId, null, null, amountToReceive, true);
+        try {
+            restTemplate.exchange(baseUrl, HttpMethod.POST, makeAuthEntityTransfer(transfer), Transfer.class);
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+        }
+}
+
     public User[] getUserList() {
         User[] returnUser = null;
 
@@ -84,15 +88,13 @@ public class AccountMgmtService
     
     
     
-    private HttpEntity<Void> makeAuthEntity()
-    {
+    private HttpEntity<Void> makeAuthEntity() {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(user.getToken());
         return new HttpEntity<>(headers);
     }
 
-    private HttpEntity<Transfer> makeAuthEntityTransfer(Transfer transfer)
-    {
+    private HttpEntity<Transfer> makeAuthEntityTransfer(Transfer transfer) {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(user.getToken());
         headers.setContentType(MediaType.APPLICATION_JSON);

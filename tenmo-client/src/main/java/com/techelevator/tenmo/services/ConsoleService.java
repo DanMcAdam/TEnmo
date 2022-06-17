@@ -112,13 +112,33 @@ public class ConsoleService {
     public void printSendMoneyMenu(User[] users) {
         System.out.println("-------------------------------------------");
         System.out.println("Users");
-        System.out.println("ID        Name");
+        System.out.println("ID          Name");
         System.out.println("-------------------------------------------");
         for (User user :
                 users) {
-            System.out.println(user.getId() + "        " + user.getUsername());
+            System.out.println(user.getId() + "         " + user.getUsername());
         }
         System.out.println("-------------------------------------------");
+    }
+
+    public void printRequestMoneyMenu(User[] users) {
+        System.out.println("-------------------------------------------");
+        System.out.println("Users");
+        System.out.println("ID          Name");
+        System.out.println("-------------------------------------------");
+        for (User user :
+                users) {
+            System.out.println(user.getId() + "         " + user.getUsername());
+        }
+        System.out.println("-------------------------------------------");
+    }
+
+    public void printApproveOrRejectRequest() {
+        System.out.println("1: Approve");
+        System.out.println("2: Reject");
+        System.out.println("0: Don't approve or Reject");
+        System.out.println("---------");
+        promptForInt("Please choose an option: ");
     }
 
     public UserCredentials promptForCredentials() {

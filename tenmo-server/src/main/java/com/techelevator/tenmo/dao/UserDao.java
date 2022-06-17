@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.dao;
 
+import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
 
 import java.math.BigDecimal;
@@ -21,4 +22,5 @@ public interface UserDao {
 
     void incrementBalance(BigDecimal amountToSend, long recipientId);
 
+   Transfer pendingStatus(long currentUser, long transferType, long recipientId, BigDecimal amountRequested);
 }
