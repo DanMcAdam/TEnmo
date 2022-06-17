@@ -45,6 +45,12 @@ public class AccountMgmtController
             System.err.println("try again!");
         }
     }
+    
+    @GetMapping(path = "/{id}/transferhistory")
+    public Transfer[] getTransferHistory(@PathVariable long id)
+    {
+        return userDao.getTransferHistory(id);
+    }
 
     @GetMapping
     public User[] getAllUsers() {

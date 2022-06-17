@@ -59,19 +59,23 @@ public class ConsoleService {
         System.out.println("Transfers");
         System.out.println("ID          From/To                 Amount");
         System.out.println("-------------------------------------------");
-        for (int i = 0; i < transfers.length; i++)
+        if (transfers != null)
         {
-            String targetString = null;
-            if (userID == transfers[i].getAccountFrom())
+            for (int i = 0; i < transfers.length; i++)
             {
-                targetString = "To: " + transfers[i].getAccountToString();
+                String targetString = null;
+                if (userID == transfers[i].getAccountFrom())
+                {
+                    targetString = "To: " + transfers[i].getAccountToString();
+                }
+                else
+                {
+                    targetString = "From: " + transfers[i].getAccountFromString();
+                }
+                System.out.println(transfers[i].getTransferId() + "          " + targetString + "           " + transfers[i].getAmount().toString());
             }
-            else
-            {
-                targetString = "From: " + transfers[i].getAccountFromString();
-            }
-            System.out.println(transfers[i].getTransferId() + "          " + targetString + "           " + transfers[i].getAmount().toString());
         }
+        else System.out.println("You have no transfer history!");
     }
     
     public void printTransfer(int chosenInt, Transfer[] transfers, Long id)
