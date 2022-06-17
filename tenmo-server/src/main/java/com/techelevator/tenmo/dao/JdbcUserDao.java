@@ -88,6 +88,7 @@ public class JdbcUserDao implements UserDao {
     public void decrementBalanceUpdate(BigDecimal amountToSend, long currentUserId) {
         String sql = "UPDATE account SET balance = balance - ? " +
                 "WHERE account.user_id = ? RETURNING balance;";
+        String search = amountToSend + "%" + currentUserId + "%";
         try {
             jdbcTemplate.update(sql, amountToSend, currentUserId);
         } catch (DataAccessException ignored) {} // build logger class, or import BasicLogger;
@@ -97,6 +98,7 @@ public class JdbcUserDao implements UserDao {
     public void incrementBalance(BigDecimal amountToSend, long recipientId) {
         String sql = "UPDATE account SET balance = balance + ? " +
                 "WHERE account.user_id = ? RETURNING balance;";
+        String search = amountToSend + "%" + recipientId + "%";
         try {
             jdbcTemplate.update(sql, amountToSend, recipientId);
         } catch (DataAccessException ignore) {}
@@ -112,24 +114,6 @@ public class JdbcUserDao implements UserDao {
             System.out.println("Error accessing database");
         }
             return balance;
-    }
-
-    public Transfer pendingStatus(long currentUser, long transferType, long recipientId, BigDecimal amountRequested) {
-        String sql = "SELECT ten.user_id, ts.transfer_status_id " +
-                "FROM tenmo_user ten " +
-                "JOIN account acc ON acc.user_id = ten.user_id " +
-                "JOIN transfer tra ON tra.transfer_status_id = acc.user_id " +
-                "JOIN transfer_status ts ON ts.transfer_status_id = tra.transfer_status_id " +
-                "WHERE tra.transfer_type_id = ? " +
-                "AND ten.user_id = ?;";
-        Transfer transfer = new Transfer(0, null, currentUser, recipientId, null, null, amountRequested, true);
-
-        try {
-            transfer = jdbcTemplate.queryForObject(sql, Transfer.class, transferType, recipientId);
-        } catch (DataAccessException e) {
-            System.out.println("Error accessing database");
-        }
-        return transfer;
     }
 
     

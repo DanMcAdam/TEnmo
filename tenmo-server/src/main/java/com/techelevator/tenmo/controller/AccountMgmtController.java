@@ -44,6 +44,12 @@ public class AccountMgmtController
             System.err.println("try again!");
         }
     }
+    
+    @GetMapping(path = "/{id}/transferhistory")
+    public Transfer[] getTransferHistory(@PathVariable long id)
+    {
+        return userDao.getTransferHistory(id);
+    }
 
     @PostMapping
     public void sendRequest(@RequestBody Transfer transfer) {
