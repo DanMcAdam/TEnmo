@@ -35,6 +35,18 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
+    public User findByID(Long userID) throws UsernameNotFoundException {
+        String sql = "SELECT user_id FROM tenmo_user WHERE user_id = ?;";
+        User id = jdbcTemplate.queryForObject(sql, User.class, userID);
+        return id;
+    }
+
+    @Override
+    public Transfer[] getTransferHistory(Long userID) {
+        return new Transfer[0];
+    }
+
+    @Override
     public User[] findAll() {
         List<User> users = new ArrayList<>();
         String sql = "SELECT user_id, username, password_hash FROM tenmo_user;";
@@ -102,6 +114,22 @@ public class JdbcUserDao implements UserDao {
         try {
             jdbcTemplate.update(sql, amountToSend, recipientId);
         } catch (DataAccessException ignore) {}
+    }
+
+    @Override
+    public Transfer requestBucks(long currentUser, long transferType, long recipientId, BigDecimal amountRequested) {
+        String sql = "SELECT ten.user_id " +
+                "FROM tenmo_user ten " +
+                "JOIN account acc ON acc.user_id = ten.user_id " +
+                "JOIN transfer tra ON tra.transfer_status_id = acc.user_id " +
+                "JOIN transfer_status ts ON ts.transfer_status_id = tra.transfer_status_id " +
+                "WHERE tra.transfer_type_id = ? AND ten.user_id = ?;";
+        Transfer transfer = new Transfer(0, null, currentUser, recipientId, null, null, amountRequested, true);
+
+        try {
+            transfer = jdbcTemplate.queryForObject(sql, Transfer.class, currentUser, transferType, recipientId, amountRequested);
+        }  catch (DataAccessException ignore) {}
+        return transfer;
     }
 
     @Override

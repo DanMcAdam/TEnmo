@@ -33,10 +33,11 @@ public class AccountMgmtController
             if (money.compareTo(userDao.getBalance(transfer.getAccountFrom())) <= 0) {
                 System.out.println("Balance is more than amount to transfer!");
                 if (!transfer.getAccountFrom().equals(transfer.getAccountTo())) {
-                    // does this method allow transfers of 0 or negative?
-                    userDao.decrementBalanceUpdate(transfer.getAmount(), transfer.getAccountFrom());
-                    userDao.incrementBalance(transfer.getAmount(), transfer.getAccountTo());
-                    transfer.setTransferStatus(1);
+                    if (money.compareTo(transfer.getAmount()) > 0) {
+                        userDao.decrementBalanceUpdate(transfer.getAmount(), transfer.getAccountFrom());
+                        userDao.incrementBalance(transfer.getAmount(), transfer.getAccountTo());
+                        transfer.setTransferStatus(1);
+                    }
                 }
             }
             else System.out.println("Balance not large enough!");
@@ -52,13 +53,26 @@ public class AccountMgmtController
     }
 
     @PostMapping
-    public void sendRequest(@RequestBody Transfer transfer) {
+    public void requestBucks(@RequestBody Transfer transfer) {
         // post a transfer to specific ID
         long currentUser = transfer.getAccountFrom();
         long transferType = transfer.getTransferStatus();
         long recipientId = transfer.getAccountTo();
         BigDecimal moneyRequested = transfer.getAmount();
-        userDao.pendingStatus(currentUser, transferType, recipientId, moneyRequested);
+
+        try {
+            if (moneyRequested.compareTo(userDao.getBalance(transfer.getAccountFrom())) <= 0){
+                System.out.println("Balance is more than amount to transfer!");
+                if (!transfer.getAccountFrom().equals(transfer.getAccountTo())) {
+                    if (moneyRequested.compareTo(transfer.getAmount()) > 0) {
+                        userDao.requestBucks(currentUser, transferType, recipientId, moneyRequested);
+                        transfer.setTransferStatus(0);
+                    }
+                }
+            }
+        } catch (ResourceAccessException e) {
+            System.err.println("try again!");
+        }
     }
 
     @GetMapping

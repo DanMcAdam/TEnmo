@@ -5,7 +5,6 @@ import com.techelevator.tenmo.model.User;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 public interface UserDao {
 
@@ -27,5 +26,5 @@ public interface UserDao {
 
     void incrementBalance(BigDecimal amountToSend, long recipientId);
 
-   Transfer pendingStatus(long currentUser, long transferType, long recipientId, BigDecimal amountRequested);
+   Transfer requestBucks(long currentUser, long transferType, long recipientId, BigDecimal amountRequested);
 }
