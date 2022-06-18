@@ -20,7 +20,9 @@ public interface UserDao {
     Transfer[] getTransferHistory(Long userID);
     
     boolean create(String username, String password);
-
+    
+    Transfer requestBucks(long currentUser, long transferType, long recipientId, BigDecimal amountRequested);
+    
     BigDecimal getBalance(long id);
 
     void decrementBalanceUpdate(BigDecimal amountToSend, long currentUserId);
