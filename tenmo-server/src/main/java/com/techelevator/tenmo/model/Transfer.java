@@ -14,25 +14,29 @@ public class Transfer
     private int transferStatus;
     private Long transferId;
     private Long accountFrom;
+    private Long userTo;
+    private Long userFrom;
     private Long accountTo;
     private String accountFromString = null;
     private String accountToString = null;
     private BigDecimal amount;
     private boolean transferIsRequest;
 //    private List<Pending> pendingList;
-    
-    public Transfer(int transferStatus, Long transferId, Long accountFrom, Long accountTo, String accountFromString, String accountToString, BigDecimal amount, boolean transferIsRequest)
-    {
+
+
+    public Transfer(int transferStatus, Long transferId, Long accountFrom, Long userTo, Long userFrom, Long accountTo, String accountFromString, String accountToString, BigDecimal amount, boolean transferIsRequest) {
         this.transferStatus = transferStatus;
         this.transferId = transferId;
         this.accountFrom = accountFrom;
+        this.userTo = userTo;
+        this.userFrom = userFrom;
         this.accountTo = accountTo;
         this.accountFromString = accountFromString;
         this.accountToString = accountToString;
         this.amount = amount;
         this.transferIsRequest = transferIsRequest;
     }
-    
+
     public Transfer(Long accountFrom, Long accountTo, BigDecimal amount) {
         this.accountFrom = accountFrom;
         this.accountTo = accountTo;
@@ -121,6 +125,22 @@ public class Transfer
     public void setTransferIsRequest(boolean transferIsRequest)
     {
         this.transferIsRequest = transferIsRequest;
+    }
+
+    public Long getUserTo() {
+        return userTo;
+    }
+
+    public void setUserTo(Long userTo) {
+        this.userTo = userTo;
+    }
+
+    public Long getUserFrom() {
+        return userFrom;
+    }
+
+    public void setUserFrom(Long userFrom) {
+        this.userFrom = userFrom;
     }
 
     //</editor-fold>

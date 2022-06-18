@@ -23,6 +23,26 @@ public class JdbcUserDao implements UserDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    public Long findTransferAccountId(Long accountId) {
+        String sql = "SELECT acc.account_id FROM account acc " +
+                "JOIN tenmo_user tu ON tu.user_id = acc.user_id " +
+                "WHERE tu.user_id = ?;";
+        Long userIdToAccId = 0L;
+        try {
+           userIdToAccId = jdbcTemplate.queryForObject(sql, Long.class, accountId);
+        } catch (DataAccessException ignore) {}
+        return userIdToAccId;
+    }
+
+    @Override
+    public Transfer transferFixer(Transfer transfer) {
+        transfer.setAccountTo(findTransferAccountId(transfer.getUserTo()));
+        transfer.setAccountFrom(findTransferAccountId(transfer.getUserFrom()));
+        return transfer;
+    }
+
+
+
     @Override
     public int findIdByUsername(String username) {
         String sql = "SELECT user_id FROM tenmo_user WHERE username ILIKE ?;";
@@ -35,15 +55,14 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
-    public User findByID(Long userID) throws UsernameNotFoundException {
-        String sql = "SELECT user_id FROM tenmo_user WHERE user_id = ?;";
-        User id = jdbcTemplate.queryForObject(sql, User.class, userID);
-        return id;
-    }
-
-    @Override
-    public Transfer[] getTransferHistory(Long userID) {
-        return new Transfer[0];
+    public Transfer findTransferById(Integer id) {
+        Transfer transfer = new Transfer();
+        String sql = "SELECT * FROM transfer WHERE transfer_id = ?;";
+        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, Transfer.class, id);
+        if (results.next()) {
+            transfer = mapRowToTransfer(results);
+        }
+        return transfer;
     }
 
     @Override
@@ -73,15 +92,52 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
-    public boolean create(String username, String password) {
+    public User findByAccountId(Long userID) throws UsernameNotFoundException
+    {
+        String sql = "SELECT * FROM tenmo_user ten " +
+                "JOIN account acc ON acc.user_id = ten.user_id " +
+                "WHERE acc.account_id = ?;";
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, userID);
+        if (rowSet.next())
+        {
+            return mapRowToUser(rowSet);
+        }
+        throw new UsernameNotFoundException("User with ID" + userID + " was not found.");
+    }
+
+    @Override
+    public Transfer[] getTransferHistory(Long userID)
+    {
+        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount FROM transfer WHERE account_from OR account_to = ?;";
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, userID);
+        List<Transfer> transferList = new ArrayList<>();
+        Transfer[] transferArray;
+        if (rowSet.next())
+        {
+            transferList.add(mapRowToTransfer(rowSet));
+        }
+        transferArray = new Transfer[transferList.size()];
+        for (int i = 0; i < transferList.size(); i++)
+        {
+            transferArray[i] = transferList.get(i);
+        }
+        return transferArray;
+    }
+
+    @Override
+    public boolean create(String username, String password)
+    {
 
         // create user
         String sql = "INSERT INTO tenmo_user (username, password_hash) VALUES (?, ?) RETURNING user_id";
         String password_hash = new BCryptPasswordEncoder().encode(password);
         Integer newUserId;
-        try {
+        try
+        {
             newUserId = jdbcTemplate.queryForObject(sql, Integer.class, username, password_hash);
-        } catch (DataAccessException e) {
+        }
+        catch (DataAccessException e)
+        {
             return false;
         }
 
@@ -89,7 +145,8 @@ public class JdbcUserDao implements UserDao {
         sql = "INSERT INTO account (user_id, balance) values(?, ?)";
         try {
             jdbcTemplate.update(sql, newUserId, STARTING_BALANCE);
-        } catch (DataAccessException e) {
+        } catch (DataAccessException e)
+        {
             return false;
         }
 
@@ -97,39 +154,33 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
-    public void decrementBalanceUpdate(BigDecimal amountToSend, long currentUserId) {
+    public void decrementBalanceUpdate(BigDecimal amountToSend, long currentUserId)
+    {
         String sql = "UPDATE account SET balance = balance - ? " +
                 "WHERE account.user_id = ? RETURNING balance;";
-        String search = amountToSend + "%" + currentUserId + "%";
-        try {
+        try
+        {
             jdbcTemplate.update(sql, amountToSend, currentUserId);
         } catch (DataAccessException ignored) {} // build logger class, or import BasicLogger;
     }
 
     @Override
-    public void incrementBalance(BigDecimal amountToSend, long recipientId) {
+    public void incrementBalance(BigDecimal amountToSend, long recipientId)
+    {
         String sql = "UPDATE account SET balance = balance + ? " +
                 "WHERE account.user_id = ? RETURNING balance;";
-        String search = amountToSend + "%" + recipientId + "%";
-        try {
+        try
+        {
             jdbcTemplate.update(sql, amountToSend, recipientId);
-        } catch (DataAccessException ignore) {}
+        } catch (DataAccessException ignore) { }
     }
 
-    @Override
-    public Transfer requestBucks(long currentUser, long transferType, long recipientId, BigDecimal amountRequested) {
-        String sql = "SELECT ten.user_id " +
-                "FROM tenmo_user ten " +
-                "JOIN account acc ON acc.user_id = ten.user_id " +
-                "JOIN transfer tra ON tra.transfer_status_id = acc.user_id " +
-                "JOIN transfer_status ts ON ts.transfer_status_id = tra.transfer_status_id " +
-                "WHERE tra.transfer_type_id = ? AND ten.user_id = ?;";
-        Transfer transfer = new Transfer(0, null, currentUser, recipientId, null, null, amountRequested, true);
 
-        try {
-            transfer = jdbcTemplate.queryForObject(sql, Transfer.class, currentUser, transferType, recipientId, amountRequested);
-        }  catch (DataAccessException ignore) {}
-        return transfer;
+    @Override
+    public Transfer createTransfer(Transfer transfer) {
+        String sql = "INSERT INTO transfer(transfer_type_id, transfer_status_id, account_from, account_to, amount) VALUES(?, ?, ?, ?, ?) RETURNING transfer_id;";
+        Integer transferId = jdbcTemplate.queryForObject(sql, Integer.class, transfer.isTransferIsRequest() ? 1 : 2, transfer.getTransferStatus(), transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount());
+        return findTransferById(transferId);
     }
 
     @Override
@@ -150,7 +201,15 @@ public class JdbcUserDao implements UserDao {
         Transfer transfer = new Transfer();
         transfer.setTransferId(rs.getLong("transfer_id"));
         transfer.setTransferStatus(rs.getInt("transfer_status_id"));
-        
+        transfer.setAccountTo(rs.getLong("transfer_from"));
+        transfer.setAccountFromString(findByAccountId(transfer.getAccountFrom()).getUsername());
+        transfer.setAccountTo(rs.getLong("transfer_to"));
+        transfer.setAccountToString(findByAccountId(transfer.getAccountTo()).getUsername());
+        transfer.setAmount(rs.getBigDecimal("amount"));
+        transfer.setTransferIsRequest(rs.getInt("transfer_type_id") == 1);
+        transfer.setUserTo(findByAccountId(transfer.getAccountTo()).getId());
+        transfer.setUserFrom(findByAccountId(transfer.getAccountFrom()).getId());
+
         //todo: finish maprowtotransfer
  
         return transfer;
