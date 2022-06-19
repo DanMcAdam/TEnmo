@@ -57,10 +57,10 @@ public class JdbcUserDao implements UserDao {
     @Override
     public Transfer[] getTransferHistory(Long userID)
     {
-        String sql = "SELECT * FROM transfer " +
-                "LEFT OUTER JOIN account acto ON acto.account_id = transfer.account_from " +
-                "LEFT OUTER JOIN account acfrom ON acfrom.account_id = transfer.account_to " +
-                "WHERE acto.user_id = ? OR acfrom.user_id = ?";
+        String sql = "SELECT t.transfer_id, t.transfer_type_id, t.transfer_status_id, t.account_from, t.account_to, t.amount FROM transfer t \n" +
+                "JOIN account acto ON acto.account_id = t.account_to " +
+                "JOIN account acfrom ON acfrom.account_id = t.account_from " +
+                "WHERE acto.user_id = ? OR acfrom.user_id = ?;";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, userID, userID);
         List<Transfer> transferList = new ArrayList<>();
         Transfer[] transferArray;
@@ -71,6 +71,7 @@ public class JdbcUserDao implements UserDao {
         transferArray = new Transfer[transferList.size()];
         for (int i = 0; i < transferList.size(); i++)
         {
+            System.out.println(transferList.get(i).toString());
             transferArray[i] = transferList.get(i);
         }
         return transferArray;
@@ -145,15 +146,14 @@ public class JdbcUserDao implements UserDao {
         Transfer transfer = new Transfer();
         transfer.setTransferId(rs.getLong("transfer_id"));
         transfer.setTransferStatus(rs.getInt("transfer_status_id"));
-        transfer.setAccountTo(rs.getLong("transfer_from"));
+        transfer.setAccountFrom(rs.getLong("account_from"));
         transfer.setUserFromString(findByAccountId(transfer.getAccountFrom()).getUsername());
-        transfer.setAccountTo(rs.getLong("transfer_to"));
+        transfer.setAccountTo(rs.getLong("account_to"));
         transfer.setUserToString(findByAccountId(transfer.getAccountTo()).getUsername());
         transfer.setAmount(rs.getBigDecimal("amount"));
         transfer.setTransferIsRequest(rs.getInt("transfer_type_id") == 1);
         transfer.setUserTo(findByAccountId(transfer.getAccountTo()).getId());
         transfer.setUserFrom(findByAccountId(transfer.getAccountFrom()).getId());
-
         //todo: finish maprowtotransfer
  
         return transfer;

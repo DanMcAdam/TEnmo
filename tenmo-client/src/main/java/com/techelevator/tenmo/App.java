@@ -125,7 +125,6 @@ public class App {
     {
         Transfer[] transfers = accountMgmtService.viewTransferHistory();
         consoleService.printTransferHistory(transfers, currentUser.getUser().getId());
-        consoleService.promptForMenuSelection("Please enter transfer ID to view details (0 to cancel): ");
         consoleService.printTransfer(consoleService.promptForMenuSelection("Please enter transfer ID to view details (0 to cancel): "), transfers, currentUser.getUser().getId());
         mainMenu();
     }

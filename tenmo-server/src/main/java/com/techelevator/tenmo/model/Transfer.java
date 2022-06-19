@@ -67,6 +67,8 @@ public class Transfer
         return transferStatus;
     }
     
+    public String getTransferStatusAsString() {return TRANSFER_STATUS_DESCRIPTION[transferStatus-1];}
+    
     public void setTransferStatus(int transferStatus)
     {
         this.transferStatus = transferStatus;
