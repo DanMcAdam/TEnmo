@@ -1,5 +1,6 @@
 package com.techelevator.tenmo.controller;
 
+import com.techelevator.tenmo.dao.HelperDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
@@ -16,8 +17,11 @@ public class AccountMgmtController
 {
     @Autowired
     private UserDao userDao;
-    public AccountMgmtController(UserDao userDao) {
+    private HelperDao helperDao;
+
+    public AccountMgmtController(UserDao userDao, HelperDao helperDao) {
         this.userDao = userDao;
+        this.helperDao = helperDao;
     }
     
     @RequestMapping(path = "/{id}/balance", method = RequestMethod.GET)
@@ -33,7 +37,7 @@ public class AccountMgmtController
             if (money.compareTo(userDao.getBalance(transfer.getAccountFrom())) <= 0) {
                 System.out.println("Balance is more than amount to transfer!");
                 if (!transfer.getAccountFrom().equals(transfer.getAccountTo())) {
-                    userDao.createTransfer(transfer);
+                    helperDao.createTransfer(transfer);
                     userDao.decrementBalanceUpdate(transfer.getAmount(), transfer.getAccountFrom());
                     userDao.incrementBalance(transfer.getAmount(), transfer.getAccountTo());
                 }
@@ -55,12 +59,12 @@ public class AccountMgmtController
         // post a transfer to specific ID
         System.out.println("Nailed it!");
         BigDecimal moneyRequested = transfer.getAmount();
-        transfer = userDao.transferFixer(transfer);
+        transfer = helperDao.transferFixer(transfer);
         try {
             if (moneyRequested.compareTo(userDao.getBalance(transfer.getUserFrom())) <= 0){
                 System.out.println("Balance is more than amount to transfer!");
                 if (!transfer.getAccountFrom().equals(transfer.getAccountTo())) {
-                    userDao.createTransfer(transfer);
+                    helperDao.createTransfer(transfer);
                 }
             }
         } catch (ResourceAccessException e) {
