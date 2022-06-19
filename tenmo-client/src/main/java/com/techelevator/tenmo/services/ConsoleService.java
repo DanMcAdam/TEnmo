@@ -61,16 +61,17 @@ public class ConsoleService {
         System.out.println("-------------------------------------------");
         if (transfers != null)
         {
+            System.out.println("Amount of transfers = " + transfers.length);
             for (int i = 0; i < transfers.length; i++)
             {
                 String targetString = null;
                 if (userID == transfers[i].getAccountFrom())
                 {
-                    targetString = "To: " + transfers[i].getAccountToString();
+                    targetString = "To: " + transfers[i].getUserToString();
                 }
                 else
                 {
-                    targetString = "From: " + transfers[i].getAccountFromString();
+                    targetString = "From: " + transfers[i].getUserFromString();
                 }
                 System.out.println(transfers[i].getTransferId() + "          " + targetString + "           " + transfers[i].getAmount().toString());
             }
@@ -98,8 +99,8 @@ public class ConsoleService {
         System.out.println("--------------------------------------------");
         if (chosenTransfer != null)
         {
-            String fromString = userIsRecipient ? chosenTransfer.getAccountFromString() : "Me";
-            String toString = userIsRecipient ? "Me" : chosenTransfer.getAccountToString();
+            String fromString = userIsRecipient ? chosenTransfer.getUserFromString() : "Me";
+            String toString = userIsRecipient ? "Me" : chosenTransfer.getUserToString();
             System.out.println("ID: " + chosenTransfer.getTransferId());
             System.out.println("From: " + fromString);
             System.out.println("To: " + toString);

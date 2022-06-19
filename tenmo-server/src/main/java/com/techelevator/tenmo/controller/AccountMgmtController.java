@@ -33,13 +33,14 @@ public class AccountMgmtController
     public void sendBucks(@RequestBody Transfer transfer) {
         System.out.println(transfer.getAccountFrom() + " " + transfer.getAccountTo() + " " + transfer.getAmount());
         BigDecimal money = transfer.getAmount();
+        transfer = helperDao.transferFixer(transfer);
         try {
-            if (money.compareTo(userDao.getBalance(transfer.getAccountFrom())) <= 0) {
+            if (money.compareTo(userDao.getBalance(transfer.getUserFrom())) <= 0) {
                 System.out.println("Balance is more than amount to transfer!");
                 if (!transfer.getAccountFrom().equals(transfer.getAccountTo())) {
                     helperDao.createTransfer(transfer);
-                    userDao.decrementBalanceUpdate(transfer.getAmount(), transfer.getAccountFrom());
-                    userDao.incrementBalance(transfer.getAmount(), transfer.getAccountTo());
+                    userDao.decrementBalanceUpdate(transfer.getAmount(), transfer.getUserFrom());
+                    userDao.incrementBalance(transfer.getAmount(), transfer.getUserTo());
                 }
             }
             else System.out.println("Balance not large enough!");

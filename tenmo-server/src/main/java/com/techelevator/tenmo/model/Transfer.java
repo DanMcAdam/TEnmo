@@ -1,10 +1,8 @@
 package com.techelevator.tenmo.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 public class Transfer
 {
@@ -17,22 +15,22 @@ public class Transfer
     private Long userTo;
     private Long userFrom;
     private Long accountTo;
-    private String accountFromString = null;
-    private String accountToString = null;
+    private String userFromString = null;
+    private String userToString = null;
     private BigDecimal amount;
     private boolean transferIsRequest;
 //    private List<Pending> pendingList;
 
 
-    public Transfer(int transferStatus, Long transferId, Long accountFrom, Long userTo, Long userFrom, Long accountTo, String accountFromString, String accountToString, BigDecimal amount, boolean transferIsRequest) {
+    public Transfer(int transferStatus, Long transferId, Long accountFrom, Long userTo, Long userFrom, Long accountTo, String userFromString, String userToString, BigDecimal amount, boolean transferIsRequest) {
         this.transferStatus = transferStatus;
         this.transferId = transferId;
         this.accountFrom = accountFrom;
         this.userTo = userTo;
         this.userFrom = userFrom;
         this.accountTo = accountTo;
-        this.accountFromString = accountFromString;
-        this.accountToString = accountToString;
+        this.userFromString = userFromString;
+        this.userToString = userToString;
         this.amount = amount;
         this.transferIsRequest = transferIsRequest;
     }
@@ -44,6 +42,23 @@ public class Transfer
     }
     
     public Transfer() {}
+    
+    @Override
+    public String toString()
+    {
+        return "Transfer{" +
+                "transferStatus=" + transferStatus +
+                ", transferId=" + transferId +
+                ", accountFrom=" + accountFrom +
+                ", userTo=" + userTo +
+                ", userFrom=" + userFrom +
+                ", accountTo=" + accountTo +
+                ", accountFromString='" + userFromString + '\'' +
+                ", accountToString='" + userToString + '\'' +
+                ", amount=" + amount +
+                ", transferIsRequest=" + transferIsRequest +
+                '}';
+    }
     
     //<editor-fold desc="Setters and Getters">
     
@@ -87,24 +102,24 @@ public class Transfer
         this.accountTo = accountTo;
     }
     
-    public String getAccountFromString()
+    public String getUserFromString()
     {
-        return accountFromString;
+        return userFromString;
     }
     
-    public void setAccountFromString(String accountFromString)
+    public void setUserFromString(String userFromString)
     {
-        this.accountFromString = accountFromString;
+        this.userFromString = userFromString;
     }
     
-    public String getAccountToString()
+    public String getUserToString()
     {
-        return accountToString;
+        return userToString;
     }
     
-    public void setAccountToString(String accountToString)
+    public void setUserToString(String userToString)
     {
-        this.accountToString = accountToString;
+        this.userToString = userToString;
     }
     
     public BigDecimal getAmount()

@@ -8,7 +8,7 @@ public interface HelperDao {
 
     Transfer transferFixer(Transfer transfer);
 
-    Transfer findTransferById(Integer id);
+    Transfer findTransferById(Long id);
 
     User findByAccountId(Long userID) throws UsernameNotFoundException;
 

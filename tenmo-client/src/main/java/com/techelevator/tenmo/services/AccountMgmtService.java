@@ -50,7 +50,7 @@ public class AccountMgmtService
     }
 
     public void sendBucks(Long currentUserId, Long recipientId, BigDecimal amountToSend) {
-        Transfer transfer = new Transfer(1, null, null, recipientId, currentUserId, null, null, null, amountToSend, false);
+        Transfer transfer = new Transfer(2, null, null, recipientId, currentUserId, null, null, null, amountToSend, false);
         try
         {
             restTemplate.put(baseUrl, makeAuthEntityTransfer(transfer));
@@ -62,7 +62,7 @@ public class AccountMgmtService
     }
 
     public void requestBucks(Long currentUserId, Long recipientId, BigDecimal amountToReceive) {
-        Transfer transfer = new Transfer(0, null, null, recipientId, currentUserId, null, null, null, amountToReceive, true);
+        Transfer transfer = new Transfer(1, null, null, recipientId, currentUserId, null, null, null, amountToReceive, true);
         try {
             restTemplate.put(baseUrl + "/requestTransfer", makeAuthEntityTransfer(transfer));
         } catch (RestClientResponseException | ResourceAccessException e) {

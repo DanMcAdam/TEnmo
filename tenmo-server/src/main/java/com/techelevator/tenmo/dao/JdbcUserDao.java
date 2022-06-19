@@ -57,8 +57,11 @@ public class JdbcUserDao implements UserDao {
     @Override
     public Transfer[] getTransferHistory(Long userID)
     {
-        String sql = "SELECT transfer_id, transfer_type_id, transfer_status_id, account_from, account_to, amount FROM transfer WHERE account_from OR account_to = ?;";
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, userID);
+        String sql = "SELECT * FROM transfer " +
+                "LEFT OUTER JOIN account acto ON acto.account_id = transfer.account_from " +
+                "LEFT OUTER JOIN account acfrom ON acfrom.account_id = transfer.account_to " +
+                "WHERE acto.user_id = ? OR acfrom.user_id = ?";
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, userID, userID);
         List<Transfer> transferList = new ArrayList<>();
         Transfer[] transferArray;
         if (rowSet.next())
@@ -143,9 +146,9 @@ public class JdbcUserDao implements UserDao {
         transfer.setTransferId(rs.getLong("transfer_id"));
         transfer.setTransferStatus(rs.getInt("transfer_status_id"));
         transfer.setAccountTo(rs.getLong("transfer_from"));
-        transfer.setAccountFromString(findByAccountId(transfer.getAccountFrom()).getUsername());
+        transfer.setUserFromString(findByAccountId(transfer.getAccountFrom()).getUsername());
         transfer.setAccountTo(rs.getLong("transfer_to"));
-        transfer.setAccountToString(findByAccountId(transfer.getAccountTo()).getUsername());
+        transfer.setUserToString(findByAccountId(transfer.getAccountTo()).getUsername());
         transfer.setAmount(rs.getBigDecimal("amount"));
         transfer.setTransferIsRequest(rs.getInt("transfer_type_id") == 1);
         transfer.setUserTo(findByAccountId(transfer.getAccountTo()).getId());

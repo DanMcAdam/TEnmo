@@ -32,10 +32,11 @@ public class AuthenticationController {
     private UserDao userDao;
     private HelperDao helperDao;
 
-    public AuthenticationController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, UserDao userDao) {
+    public AuthenticationController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, UserDao userDao, HelperDao helperDao) {
         this.tokenProvider = tokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.userDao = userDao;
+        this.helperDao = helperDao;
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
