@@ -56,7 +56,7 @@ public class AccountMgmtController
         // post a transfer to specific ID
         long currentUser = transfer.getAccountFrom();
         long transferType = transfer.getTransferStatus();
-        long recipientIgit pulld = transfer.getAccountTo();
+        long recipientId = transfer.getAccountTo();
         BigDecimal moneyRequested = transfer.getAmount();
         userDao.pendingStatus(currentUser, transferType, recipientId, moneyRequested);
     }

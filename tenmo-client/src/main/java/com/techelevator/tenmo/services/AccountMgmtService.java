@@ -28,7 +28,8 @@ public class AccountMgmtService
         try {
             ResponseEntity<BigDecimal> response = restTemplate.exchange(baseUrl + user.getUser().getId() + "/balance", HttpMethod.GET, makeAuthEntity(), BigDecimal.class);
             returnDecimal = response.getBody();
-        } catch (RestClientResponseException | ResourceAccessException e) {
+        } catch (RestClientResponseException | ResourceAccessException e)
+        {
             BasicLogger.log(e.getMessage());
         }
         return returnDecimal;
