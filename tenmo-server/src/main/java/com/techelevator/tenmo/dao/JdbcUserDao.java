@@ -23,47 +23,6 @@ public class JdbcUserDao implements UserDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public Long findTransferAccountId(Long accountId) {
-        String sql = "SELECT acc.account_id FROM account acc " +
-                "JOIN tenmo_user tu ON tu.user_id = acc.user_id " +
-                "WHERE tu.user_id = ?;";
-        Long userIdToAccId = 0L;
-        try {
-           userIdToAccId = jdbcTemplate.queryForObject(sql, Long.class, accountId);
-        } catch (DataAccessException ignore) {}
-        return userIdToAccId;
-    }
-
-    @Override
-    public Transfer transferFixer(Transfer transfer) {
-        transfer.setAccountTo(findTransferAccountId(transfer.getUserTo()));
-        transfer.setAccountFrom(findTransferAccountId(transfer.getUserFrom()));
-        return transfer;
-    }
-
-
-
-    @Override
-    public int findIdByUsername(String username) {
-        String sql = "SELECT user_id FROM tenmo_user WHERE username ILIKE ?;";
-        Integer id = jdbcTemplate.queryForObject(sql, Integer.class, username);
-        if (id != null) {
-            return id;
-        } else {
-            return -1;
-        }
-    }
-
-    @Override
-    public Transfer findTransferById(Integer id) {
-        Transfer transfer = new Transfer();
-        String sql = "SELECT * FROM transfer WHERE transfer_id = ?;";
-        SqlRowSet results = jdbcTemplate.queryForRowSet(sql, Transfer.class, id);
-        if (results.next()) {
-            transfer = mapRowToTransfer(results);
-        }
-        return transfer;
-    }
 
     @Override
     public User[] findAll() {
@@ -79,16 +38,6 @@ public class JdbcUserDao implements UserDao {
             users1[i] = users.get(i);
         }
         return users1;
-    }
-
-    @Override
-    public User findByUsername(String username) throws UsernameNotFoundException {
-        String sql = "SELECT user_id, username, password_hash FROM tenmo_user WHERE username ILIKE ?;";
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, username);
-        if (rowSet.next()){
-            return mapRowToUser(rowSet);
-        }
-        throw new UsernameNotFoundException("User " + username + " was not found.");
     }
 
     @Override
@@ -173,14 +122,6 @@ public class JdbcUserDao implements UserDao {
         {
             jdbcTemplate.update(sql, amountToSend, recipientId);
         } catch (DataAccessException ignore) { }
-    }
-
-
-    @Override
-    public Transfer createTransfer(Transfer transfer) {
-        String sql = "INSERT INTO transfer(transfer_type_id, transfer_status_id, account_from, account_to, amount) VALUES(?, ?, ?, ?, ?) RETURNING transfer_id;";
-        Integer transferId = jdbcTemplate.queryForObject(sql, Integer.class, transfer.isTransferIsRequest() ? 1 : 2, transfer.getTransferStatus(), transfer.getAccountFrom(), transfer.getAccountTo(), transfer.getAmount());
-        return findTransferById(transferId);
     }
 
     @Override
