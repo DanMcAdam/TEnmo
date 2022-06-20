@@ -93,6 +93,12 @@ public class JdbcHelperDao implements HelperDao
             return -1;
         }
     }
+
+//    public String findUsernameById(Long currentUserId) {
+//        String sql = "SELECT tu.username FROM tenmo_user tu\n" +
+//                "WHERE tu.user_id = 1001\n";
+//
+//    }
     
     
     @Override

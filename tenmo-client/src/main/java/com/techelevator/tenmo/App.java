@@ -132,7 +132,11 @@ public class App {
     private void viewPendingRequests()
     {
         // TODO Auto-generated method stub
-
+        accountMgmtService.pendingRequest(currentUser.getUser().getId());
+        // it's sending two GET requests for some reason.
+        // giving a 404 error???
+        consoleService.pendingRequestMenu(accountMgmtService.pendingRequest(currentUser.getUser().getId()));
+        consoleService.printApproveOrRejectRequest();
 
     }
 

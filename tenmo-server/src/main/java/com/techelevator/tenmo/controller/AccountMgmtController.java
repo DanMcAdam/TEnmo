@@ -72,6 +72,14 @@ public class AccountMgmtController
         }
     }
 
+    @GetMapping("/{id}/pendingList")
+    public Transfer[] pendingRequests(@PathVariable long id) {
+        if (userDao.pendingRequests(id) == null) {
+            System.out.println("No requests have been made!");
+        }
+        return userDao.pendingRequests(id);
+    }
+
     @GetMapping
     public User[] getAllUsers() {
         return userDao.findAll();

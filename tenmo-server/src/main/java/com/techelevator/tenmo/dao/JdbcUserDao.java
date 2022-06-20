@@ -131,7 +131,25 @@ public class JdbcUserDao implements UserDao {
             return balance;
     }
 
-    
+    public Transfer[] pendingRequests(Long currentUserId) {
+        List<Transfer> transfers = new ArrayList<>();
+        String sql = "SELECT tra.account_from, tra.amount, tra.account_to FROM transfer tra\n" +
+                "JOIN account acc ON acc.account_id = tra.account_to\n" +
+                "WHERE transfer_type_id = 1 AND acc.user_id = ?;";
+        SqlRowSet returnPending = jdbcTemplate.queryForRowSet(sql + currentUserId);
+        while (returnPending.next()) {
+          Transfer pending = mapRowToTransfer(returnPending);
+          transfers.add(pending);
+        }
+        Transfer[] pendings = new Transfer[transfers.size()];
+        for (int i = 0; i < transfers.size(); i++) {
+            pendings[i] = transfers.get(i);
+        }
+        return pendings;
+    }
+
+
+
     private Transfer mapRowToTransfer(SqlRowSet rs)
     {
         Transfer transfer = new Transfer();

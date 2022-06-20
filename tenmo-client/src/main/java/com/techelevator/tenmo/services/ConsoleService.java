@@ -6,6 +6,7 @@ import com.techelevator.tenmo.model.User;
 import com.techelevator.tenmo.model.UserCredentials;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class ConsoleService {
@@ -62,18 +63,14 @@ public class ConsoleService {
         if (transfers != null)
         {
             System.out.println("Amount of transfers = " + transfers.length);
-            for (int i = 0; i < transfers.length; i++)
-            {
-                String targetString = null;
-                if (userID == transfers[i].getAccountFrom())
-                {
-                    targetString = "To: " + transfers[i].getUserToString();
+            for (Transfer transfer : transfers) {
+                String targetString;
+                if (Objects.equals(userID, transfer.getAccountFrom())) {
+                    targetString = "To: " + transfer.getUserToString();
+                } else {
+                    targetString = "From: " + transfer.getUserFromString();
                 }
-                else
-                {
-                    targetString = "From: " + transfers[i].getUserFromString();
-                }
-                System.out.println(transfers[i].getTransferId() + "          " + targetString + "           " + transfers[i].getAmount().toString());
+                System.out.println(transfer.getTransferId() + "          " + targetString + "           " + transfer.getAmount());
             }
         }
         else System.out.println("You have no transfer history!");
@@ -88,7 +85,7 @@ public class ConsoleService {
         {
             if (chosenInt == transfers[i].getTransferId().intValue()) {
                 //identifying the recipient here adds context to the printout
-                userIsRecipient = id == transfers[i].getAccountTo();
+                userIsRecipient = Objects.equals(id, transfers[i].getAccountTo());
                 transferType = userIsRecipient ? "Recieve" : "Send";
                 userIsRecipient = transferType.equals("Recieve");
                 chosenTransfer = transfers[i];
@@ -138,6 +135,19 @@ public class ConsoleService {
             System.out.println(user.getId() + "         " + user.getUsername());
         }
         System.out.println("-------------------------------------------");
+    }
+
+    public void pendingRequestMenu(Transfer[] transfer) {
+        System.out.println("-------------------------------------------");
+        System.out.println("Pending Transfers");
+        System.out.println("ID          To                   Amount");
+        System.out.println("-------------------------------------------");
+        for (Transfer value : transfer) {
+            System.out.println(value.getTransferId() +
+                    " " + value.getAccountFrom() + " " + value.getAmount());
+        }
+        System.out.println("-------------------------------------------");
+        System.out.println();
     }
 
     public void printApproveOrRejectRequest() {

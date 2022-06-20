@@ -12,6 +12,7 @@ import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public class AccountMgmtService
 {
@@ -53,7 +54,7 @@ public class AccountMgmtService
 
     public void sendBucks(Long currentUserId, Long recipientId, BigDecimal amountToSend) {
         Transfer transfer = new Transfer(2, null, null, recipientId, currentUserId, null, null, null, amountToSend, false);
-        if (amountToSend.compareTo(BigDecimal.ZERO) > 0 && currentUserId != recipientId)
+        if (amountToSend.compareTo(BigDecimal.ZERO) > 0 && !Objects.equals(currentUserId, recipientId))
         {
             try
             {
@@ -69,7 +70,7 @@ public class AccountMgmtService
 
     public void requestBucks(Long currentUserId, Long recipientId, BigDecimal amountToReceive) {
         Transfer transfer = new Transfer(1, null, null, recipientId, currentUserId, null, null, null, amountToReceive, true);
-        if (amountToReceive.compareTo(BigDecimal.ZERO) > 0 && currentUserId != recipientId)
+        if (amountToReceive.compareTo(BigDecimal.ZERO) > 0 && !Objects.equals(currentUserId, recipientId))
         {
             try {
                 restTemplate.put(baseUrl + "/requestTransfer", makeAuthEntityTransfer(transfer));
@@ -97,17 +98,15 @@ public class AccountMgmtService
         return returnUser;
     }
 
-    public Transfer[] pendingRequest() {
-        Transfer transfer = new Transfer();
-        Transfer[] pendingList = null;
-
+    public Transfer[] pendingRequest(Long id) {
+        Transfer[] returnPending = new Transfer[0];
         try {
-            ResponseEntity<Transfer[]> response = restTemplate.exchange(baseUrl + transfer.getAccountTo(), HttpMethod.GET, makeAuthEntityTransfer(transfer), Transfer[].class);
-            pendingList = response.getBody();
+            ResponseEntity<Transfer[]> response = restTemplate.exchange(baseUrl + user.getUser().getId(), HttpMethod.GET, makeAuthEntity(), Transfer[].class);
+            returnPending = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
             BasicLogger.log(e.getMessage());
         }
-        return pendingList;
+        return returnPending;
     }
     
     

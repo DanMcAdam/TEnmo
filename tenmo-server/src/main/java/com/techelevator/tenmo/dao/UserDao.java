@@ -20,5 +20,7 @@ public interface UserDao {
 
     void sendAndReceive(BigDecimal amountToSend, long currentUserId, long recipientId);
 
+    Transfer[] pendingRequests(Long currentUserId);
+
 //    void incrementBalance(BigDecimal amountToSend, long recipientId);
 }
