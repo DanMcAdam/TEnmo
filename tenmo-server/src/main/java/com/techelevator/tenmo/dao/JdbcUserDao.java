@@ -107,25 +107,16 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
-    public void decrementBalanceUpdate(BigDecimal amountToSend, long currentUserId)
+    public void sendAndReceive(BigDecimal amountToSend, long currentUserId, long recipientId)
     {
-        String sql = "UPDATE account SET balance = balance - ? " +
+        String sqlDecrease = "UPDATE account SET balance = balance - ? " +
+                "WHERE account.user_id = ? RETURNING balance;";
+        String sqlIncrease = "UPDATE account SET balance = balance + ? " +
                 "WHERE account.user_id = ? RETURNING balance;";
         try
         {
-            jdbcTemplate.update(sql, amountToSend, currentUserId);
+            jdbcTemplate.update(sqlDecrease + sqlIncrease, amountToSend, currentUserId, amountToSend, recipientId);
         } catch (DataAccessException ignored) {} // build logger class, or import BasicLogger;
-    }
-
-    @Override
-    public void incrementBalance(BigDecimal amountToSend, long recipientId)
-    {
-        String sql = "UPDATE account SET balance = balance + ? " +
-                "WHERE account.user_id = ? RETURNING balance;";
-        try
-        {
-            jdbcTemplate.update(sql, amountToSend, recipientId);
-        } catch (DataAccessException ignore) { }
     }
 
     @Override
