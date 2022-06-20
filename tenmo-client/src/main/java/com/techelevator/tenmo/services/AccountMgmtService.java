@@ -54,7 +54,7 @@ public class AccountMgmtService
 
     public void sendBucks(Long currentUserId, Long recipientId, BigDecimal amountToSend) {
         Transfer transfer = new Transfer(2, null, null, recipientId, currentUserId, null, null, null, amountToSend, false);
-        if (amountToSend.compareTo(BigDecimal.ZERO) > 0 && !Objects.equals(currentUserId, recipientId))
+        if (amountToSend.compareTo(BigDecimal.ZERO) > 0 && !currentUserId.equals(recipientId))
         {
             try
             {
@@ -68,9 +68,9 @@ public class AccountMgmtService
         else System.out.println("That is not a valid transaction, please try again");
     }
 
-    public void requestBucks(Long currentUserId, Long recipientId, BigDecimal amountToReceive) {
-        Transfer transfer = new Transfer(1, null, null, recipientId, currentUserId, null, null, null, amountToReceive, true);
-        if (amountToReceive.compareTo(BigDecimal.ZERO) > 0 && !Objects.equals(currentUserId, recipientId))
+    public void requestBucks(Long currentUserId, Long requestFromId, BigDecimal amountToReceive) {
+        Transfer transfer = new Transfer(1, null, null, currentUserId, requestFromId, null, null, null, amountToReceive, true);
+        if (amountToReceive.compareTo(BigDecimal.ZERO) > 0 && !currentUserId.equals(requestFromId))
         {
             try {
                 restTemplate.put(baseUrl + "/requestTransfer", makeAuthEntityTransfer(transfer));

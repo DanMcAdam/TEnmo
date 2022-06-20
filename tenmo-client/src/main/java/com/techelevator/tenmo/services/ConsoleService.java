@@ -144,7 +144,7 @@ public class ConsoleService {
         System.out.println("-------------------------------------------");
         for (Transfer value : transfer) {
             System.out.println(value.getTransferId() +
-                    " " + value.getAccountFrom() + " " + value.getAmount());
+                    "        " + value.getUserToString() + "                 " + value.getAmount());
         }
         System.out.println("-------------------------------------------");
         System.out.println();

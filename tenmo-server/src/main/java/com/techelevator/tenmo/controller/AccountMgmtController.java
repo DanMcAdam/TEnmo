@@ -65,16 +65,13 @@ public class AccountMgmtController
     public void requestBucks(@RequestBody Transfer transfer)
     {
         // post a transfer to specific ID
-        System.out.println("Nailed it!");
         BigDecimal moneyRequested = transfer.getAmount();
         transfer = helperDao.transferFixer(transfer);
         try
         {
-            System.out.println("Balance is more than amount to transfer!");
             if (!transfer.getAccountFrom().equals(transfer.getAccountTo()))
             {
                 helperDao.createTransfer(transfer);
-                
             }
         } catch (ResourceAccessException e)
         {

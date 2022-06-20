@@ -132,12 +132,8 @@ public class App {
     private void viewPendingRequests()
     {
         // TODO Auto-generated method stub
-        accountMgmtService.pendingRequest(currentUser.getUser().getId());
-        // it's sending two GET requests for some reason.
-        // giving a 404 error???
         consoleService.pendingRequestMenu(accountMgmtService.pendingRequest(currentUser.getUser().getId()));
         consoleService.printApproveOrRejectRequest();
-
     }
 
 
@@ -152,7 +148,7 @@ public class App {
     
     private void requestBucks() {
         consoleService.printRequestMoneyMenu(accountMgmtService.getUserList());
-        long receiverId = consoleService.promptForInt("Enter ID of user you are sending to (0 to cancel): ");
+        long receiverId = consoleService.promptForInt("Enter ID of user you are requesting from (0 to cancel): ");
         BigDecimal amountToReceive = consoleService.promptForBigDecimal("Enter amount: ");
         accountMgmtService.requestBucks(currentUser.getUser().getId(), receiverId, amountToReceive);
         mainMenu();
