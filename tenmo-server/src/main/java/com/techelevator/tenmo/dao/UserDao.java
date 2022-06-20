@@ -18,7 +18,7 @@ public interface UserDao {
 
     BigDecimal getBalance(long id);
 
-    void decrementBalanceUpdate(BigDecimal amountToSend, long currentUserId);
+    void sendAndReceive(BigDecimal amountToSend, long currentUserId, long recipientId);
 
-    void incrementBalance(BigDecimal amountToSend, long recipientId);
+//    void incrementBalance(BigDecimal amountToSend, long recipientId);
 }

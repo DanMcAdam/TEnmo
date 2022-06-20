@@ -39,8 +39,7 @@ public class AccountMgmtController
                 System.out.println("Balance is more than amount to transfer!");
                 if (!transfer.getAccountFrom().equals(transfer.getAccountTo())) {
                     helperDao.createTransfer(transfer);
-                    userDao.decrementBalanceUpdate(transfer.getAmount(), transfer.getUserFrom());
-                    userDao.incrementBalance(transfer.getAmount(), transfer.getUserTo());
+                    userDao.sendAndReceive(transfer.getAmount(), transfer.getUserFrom(), transfer.getUserTo());
                 }
             }
             else System.out.println("Balance not large enough!");

@@ -114,6 +114,8 @@ public class ConsoleService {
         }
     }
 
+
+    // these menus could be paired down to one menu, unless you want each of them to be different.
     public void printSendMoneyMenu(User[] users) {
         System.out.println("-------------------------------------------");
         System.out.println("Users");

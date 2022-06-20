@@ -3,11 +3,11 @@ package com.techelevator.tenmo.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class Transfer
 {
     //transfer status is stored as an int on transfer table, int (transferStatus - 1) correlates to String status
-    @JsonIgnore
     private final static String[] TRANSFER_STATUS_DESCRIPTION = new String[]{"Pending", "Approved", "Rejected"};
     private int transferStatus;
     private Long transferId;
@@ -19,8 +19,7 @@ public class Transfer
     private String userToString = null;
     private BigDecimal amount;
     private boolean transferIsRequest;
-//    private List<Pending> pendingList;
-
+    private List<Transfer> pendingList;
 
     public Transfer(int transferStatus, Long transferId, Long accountFrom, Long userTo, Long userFrom, Long accountTo, String userFromString, String userToString, BigDecimal amount, boolean transferIsRequest) {
         this.transferStatus = transferStatus;
@@ -132,10 +131,7 @@ public class Transfer
         this.amount = amount;
     }
     
-    public boolean isTransferIsRequest()
-    {
-        return transferIsRequest;
-    }
+    public boolean isTransferIsRequest() {return transferIsRequest;}
     
     public void setTransferIsRequest(boolean transferIsRequest)
     {
@@ -156,6 +152,14 @@ public class Transfer
 
     public void setUserFrom(Long userFrom) {
         this.userFrom = userFrom;
+    }
+
+    public List<Transfer> getPendingList() {
+        return pendingList;
+    }
+
+    public void setPendingList(List<Transfer> pendingList) {
+        this.pendingList = pendingList;
     }
 
     //</editor-fold>

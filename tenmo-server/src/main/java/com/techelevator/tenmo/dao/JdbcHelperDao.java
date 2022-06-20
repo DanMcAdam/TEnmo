@@ -19,7 +19,7 @@ public class JdbcHelperDao implements HelperDao
         this.jdbcTemplate = jdbcTemplate;
     }
     
-    public Long findTransferAccountId(Long accountId)
+    public Long findTransferAccountId(Long userId)
     {
         String sql = "SELECT acc.account_id FROM account acc " +
                 "JOIN tenmo_user tu ON tu.user_id = acc.user_id " +
@@ -27,7 +27,7 @@ public class JdbcHelperDao implements HelperDao
         Long userIdToAccId = 0L;
         try
         {
-            userIdToAccId = jdbcTemplate.queryForObject(sql, Long.class, accountId);
+            userIdToAccId = jdbcTemplate.queryForObject(sql, Long.class, userId);
         } catch (DataAccessException ignore) { }
         return userIdToAccId;
     }

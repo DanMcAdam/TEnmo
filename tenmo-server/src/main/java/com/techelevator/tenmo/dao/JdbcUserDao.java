@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
+import javax.xml.crypto.Data;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -57,10 +58,11 @@ public class JdbcUserDao implements UserDao {
     @Override
     public Transfer[] getTransferHistory(Long userID)
     {
-        String sql = "SELECT * FROM transfer " +
-                "LEFT OUTER JOIN account acto ON acto.account_id = transfer.account_from " +
-                "LEFT OUTER JOIN account acfrom ON acfrom.account_id = transfer.account_to " +
-                "WHERE acto.user_id = ? OR acfrom.user_id = ?";
+        String sql = "SELECT t.transfer_id, t.transfer_type_id, t.transfer_status_id, t.account_from, t.account_to, t.amount FROM transfer t \n" +
+                "JOIN account acto ON acto.account_id = t.account_from \n" +
+                "JOIN account acfrom ON acfrom.account_id = t.account_to \n" +
+                "WHERE acto.user_id = ? OR acfrom.user_id = ?;";
+
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, userID, userID);
         List<Transfer> transferList = new ArrayList<>();
         Transfer[] transferArray;
@@ -106,25 +108,16 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
-    public void decrementBalanceUpdate(BigDecimal amountToSend, long currentUserId)
+    public void sendAndReceive(BigDecimal amountToSend, long currentUserId, long recipientId)
     {
-        String sql = "UPDATE account SET balance = balance - ? " +
+        String sqlDecrease = "UPDATE account SET balance = balance - ? " +
+                "WHERE account.user_id = ? RETURNING balance;";
+        String sqlIncrease = "UPDATE account SET balance = balance + ? " +
                 "WHERE account.user_id = ? RETURNING balance;";
         try
         {
-            jdbcTemplate.update(sql, amountToSend, currentUserId);
+            jdbcTemplate.update(sqlDecrease + sqlIncrease, amountToSend, currentUserId, amountToSend, recipientId);
         } catch (DataAccessException ignored) {} // build logger class, or import BasicLogger;
-    }
-
-    @Override
-    public void incrementBalance(BigDecimal amountToSend, long recipientId)
-    {
-        String sql = "UPDATE account SET balance = balance + ? " +
-                "WHERE account.user_id = ? RETURNING balance;";
-        try
-        {
-            jdbcTemplate.update(sql, amountToSend, recipientId);
-        } catch (DataAccessException ignore) { }
     }
 
     @Override
@@ -145,9 +138,9 @@ public class JdbcUserDao implements UserDao {
         Transfer transfer = new Transfer();
         transfer.setTransferId(rs.getLong("transfer_id"));
         transfer.setTransferStatus(rs.getInt("transfer_status_id"));
-        transfer.setAccountTo(rs.getLong("transfer_from"));
+        transfer.setAccountFrom(rs.getLong("account_from"));
         transfer.setUserFromString(findByAccountId(transfer.getAccountFrom()).getUsername());
-        transfer.setAccountTo(rs.getLong("transfer_to"));
+        transfer.setAccountTo(rs.getLong("account_to"));
         transfer.setUserToString(findByAccountId(transfer.getAccountTo()).getUsername());
         transfer.setAmount(rs.getBigDecimal("amount"));
         transfer.setTransferIsRequest(rs.getInt("transfer_type_id") == 1);

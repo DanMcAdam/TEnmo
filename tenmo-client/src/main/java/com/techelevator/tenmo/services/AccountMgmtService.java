@@ -4,7 +4,9 @@ import com.techelevator.tenmo.model.AuthenticatedUser;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
 import com.techelevator.util.BasicLogger;
+import org.bouncycastle.jce.provider.symmetric.ARC4;
 import org.springframework.http.*;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
@@ -85,6 +87,19 @@ public class AccountMgmtService
             return new User[1];
         }
         return returnUser;
+    }
+
+    public Transfer[] pendingRequest() {
+        Transfer transfer = new Transfer();
+        Transfer[] pendingList = null;
+
+        try {
+            ResponseEntity<Transfer[]> response = restTemplate.exchange(baseUrl + transfer.getAccountTo(), HttpMethod.GET, makeAuthEntityTransfer(transfer), Transfer[].class);
+            pendingList = response.getBody();
+        } catch (RestClientResponseException | ResourceAccessException e) {
+            BasicLogger.log(e.getMessage());
+        }
+        return pendingList;
     }
     
     
