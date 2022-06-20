@@ -9,7 +9,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Component;
 
-import javax.xml.crypto.Data;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,10 +58,9 @@ public class JdbcUserDao implements UserDao {
     public Transfer[] getTransferHistory(Long userID)
     {
         String sql = "SELECT t.transfer_id, t.transfer_type_id, t.transfer_status_id, t.account_from, t.account_to, t.amount FROM transfer t \n" +
-                "JOIN account acto ON acto.account_id = t.account_from \n" +
-                "JOIN account acfrom ON acfrom.account_id = t.account_to \n" +
+                "JOIN account acto ON acto.account_id = t.account_to " +
+                "JOIN account acfrom ON acfrom.account_id = t.account_from " +
                 "WHERE acto.user_id = ? OR acfrom.user_id = ?;";
-
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, userID, userID);
         List<Transfer> transferList = new ArrayList<>();
         Transfer[] transferArray;
@@ -73,6 +71,7 @@ public class JdbcUserDao implements UserDao {
         transferArray = new Transfer[transferList.size()];
         for (int i = 0; i < transferList.size(); i++)
         {
+            System.out.println(transferList.get(i).toString());
             transferArray[i] = transferList.get(i);
         }
         return transferArray;
@@ -108,16 +107,25 @@ public class JdbcUserDao implements UserDao {
     }
 
     @Override
-    public void sendAndReceive(BigDecimal amountToSend, long currentUserId, long recipientId)
+    public void decrementBalanceUpdate(BigDecimal amountToSend, long currentUserId)
     {
-        String sqlDecrease = "UPDATE account SET balance = balance - ? " +
-                "WHERE account.user_id = ? RETURNING balance;";
-        String sqlIncrease = "UPDATE account SET balance = balance + ? " +
+        String sql = "UPDATE account SET balance = balance - ? " +
                 "WHERE account.user_id = ? RETURNING balance;";
         try
         {
-            jdbcTemplate.update(sqlDecrease + sqlIncrease, amountToSend, currentUserId, amountToSend, recipientId);
+            jdbcTemplate.update(sql, amountToSend, currentUserId);
         } catch (DataAccessException ignored) {} // build logger class, or import BasicLogger;
+    }
+
+    @Override
+    public void incrementBalance(BigDecimal amountToSend, long recipientId)
+    {
+        String sql = "UPDATE account SET balance = balance + ? " +
+                "WHERE account.user_id = ? RETURNING balance;";
+        try
+        {
+            jdbcTemplate.update(sql, amountToSend, recipientId);
+        } catch (DataAccessException ignore) { }
     }
 
     @Override
@@ -146,7 +154,6 @@ public class JdbcUserDao implements UserDao {
         transfer.setTransferIsRequest(rs.getInt("transfer_type_id") == 1);
         transfer.setUserTo(findByAccountId(transfer.getAccountTo()).getId());
         transfer.setUserFrom(findByAccountId(transfer.getAccountFrom()).getId());
-
         //todo: finish maprowtotransfer
  
         return transfer;

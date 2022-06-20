@@ -53,23 +53,31 @@ public class AccountMgmtService
 
     public void sendBucks(Long currentUserId, Long recipientId, BigDecimal amountToSend) {
         Transfer transfer = new Transfer(2, null, null, recipientId, currentUserId, null, null, null, amountToSend, false);
-        try
+        if (amountToSend.compareTo(BigDecimal.ZERO) > 0 && currentUserId != recipientId)
         {
-            restTemplate.put(baseUrl, makeAuthEntityTransfer(transfer));
-
-        } catch (RestClientResponseException | ResourceAccessException e)
-        {
-            BasicLogger.log(e.getMessage());
+            try
+            {
+                restTemplate.put(baseUrl, makeAuthEntityTransfer(transfer));
+        
+            } catch (RestClientResponseException | ResourceAccessException e)
+            {
+                BasicLogger.log(e.getMessage());
+            }
         }
+        else System.out.println("That is not a valid transaction, please try again");
     }
 
     public void requestBucks(Long currentUserId, Long recipientId, BigDecimal amountToReceive) {
         Transfer transfer = new Transfer(1, null, null, recipientId, currentUserId, null, null, null, amountToReceive, true);
-        try {
-            restTemplate.put(baseUrl + "/requestTransfer", makeAuthEntityTransfer(transfer));
-        } catch (RestClientResponseException | ResourceAccessException e) {
-            BasicLogger.log(e.getMessage());
+        if (amountToReceive.compareTo(BigDecimal.ZERO) > 0 && currentUserId != recipientId)
+        {
+            try {
+                restTemplate.put(baseUrl + "/requestTransfer", makeAuthEntityTransfer(transfer));
+            } catch (RestClientResponseException | ResourceAccessException e) {
+                BasicLogger.log(e.getMessage());
+            }
         }
+        else System.out.println("That is not a valid transaction, please try again");
 }
 
     public User[] getUserList() {

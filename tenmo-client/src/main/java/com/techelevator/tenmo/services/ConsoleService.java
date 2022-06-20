@@ -105,7 +105,7 @@ public class ConsoleService {
             System.out.println("From: " + fromString);
             System.out.println("To: " + toString);
             System.out.println("Type: " + transferType);
-            System.out.println("Status: " + chosenTransfer.getTransferStatus());
+            System.out.println("Status: " + chosenTransfer.getTransferStatusAsString());
             System.out.println("Amount: " + chosenTransfer.getAmount());
         }
         else
