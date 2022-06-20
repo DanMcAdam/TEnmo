@@ -101,7 +101,7 @@ public class AccountMgmtService
     public Transfer[] pendingRequest(Long id) {
         Transfer[] returnPending = new Transfer[0];
         try {
-            ResponseEntity<Transfer[]> response = restTemplate.exchange(baseUrl + user.getUser().getId(), HttpMethod.GET, makeAuthEntity(), Transfer[].class);
+            ResponseEntity<Transfer[]> response = restTemplate.exchange(baseUrl + "/" + user.getUser().getId() + "/pendingList", HttpMethod.GET, makeAuthEntity(), Transfer[].class);
             returnPending = response.getBody();
         } catch (RestClientResponseException | ResourceAccessException e) {
             BasicLogger.log(e.getMessage());

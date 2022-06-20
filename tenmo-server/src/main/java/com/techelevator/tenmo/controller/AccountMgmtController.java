@@ -18,32 +18,39 @@ public class AccountMgmtController
     @Autowired
     private UserDao userDao;
     private HelperDao helperDao;
-
-    public AccountMgmtController(UserDao userDao, HelperDao helperDao) {
+    
+    public AccountMgmtController(UserDao userDao, HelperDao helperDao)
+    {
         this.userDao = userDao;
         this.helperDao = helperDao;
     }
     
     @RequestMapping(path = "/{id}/balance", method = RequestMethod.GET)
-    public BigDecimal returnBalance (@PathVariable Long id) {
+    public BigDecimal returnBalance(@PathVariable Long id)
+    {
         return userDao.getBalance(id);
     }
-
+    
     @PutMapping(path = "")
-    public void sendBucks(@RequestBody Transfer transfer) {
+    public void sendBucks(@RequestBody Transfer transfer)
+    {
         System.out.println(transfer.getAccountFrom() + " " + transfer.getAccountTo() + " " + transfer.getAmount());
         BigDecimal money = transfer.getAmount();
         transfer = helperDao.transferFixer(transfer);
-        try {
-            if (money.compareTo(userDao.getBalance(transfer.getUserFrom())) <= 0) {
+        try
+        {
+            if (money.compareTo(userDao.getBalance(transfer.getUserFrom())) <= 0)
+            {
                 System.out.println("Balance is more than amount to transfer!");
-                if (!transfer.getAccountFrom().equals(transfer.getAccountTo())) {
+                if (!transfer.getAccountFrom().equals(transfer.getAccountTo()))
+                {
                     helperDao.createTransfer(transfer);
                     userDao.sendAndReceive(transfer.getAmount(), transfer.getUserFrom(), transfer.getUserTo());
                 }
             }
             else System.out.println("Balance not large enough!");
-        } catch (ResourceAccessException e) {
+        } catch (ResourceAccessException e)
+        {
             System.err.println("try again!");
         }
     }
@@ -53,35 +60,41 @@ public class AccountMgmtController
     {
         return userDao.getTransferHistory(id);
     }
-
+    
     @PutMapping(path = "/requestTransfer")
-    public void requestBucks(@RequestBody Transfer transfer) {
+    public void requestBucks(@RequestBody Transfer transfer)
+    {
         // post a transfer to specific ID
         System.out.println("Nailed it!");
         BigDecimal moneyRequested = transfer.getAmount();
         transfer = helperDao.transferFixer(transfer);
-        try {
-            if (moneyRequested.compareTo(userDao.getBalance(transfer.getUserFrom())) <= 0){
-                System.out.println("Balance is more than amount to transfer!");
-                if (!transfer.getAccountFrom().equals(transfer.getAccountTo())) {
-                    helperDao.createTransfer(transfer);
-                }
+        try
+        {
+            System.out.println("Balance is more than amount to transfer!");
+            if (!transfer.getAccountFrom().equals(transfer.getAccountTo()))
+            {
+                helperDao.createTransfer(transfer);
+                
             }
-        } catch (ResourceAccessException e) {
+        } catch (ResourceAccessException e)
+        {
             System.err.println("try again!");
         }
     }
-
+    
     @GetMapping("/{id}/pendingList")
-    public Transfer[] pendingRequests(@PathVariable long id) {
-        if (userDao.pendingRequests(id) == null) {
+    public Transfer[] pendingRequests(@PathVariable long id)
+    {
+        if (userDao.pendingRequests(id) == null)
+        {
             System.out.println("No requests have been made!");
         }
         return userDao.pendingRequests(id);
     }
-
+    
     @GetMapping
-    public User[] getAllUsers() {
+    public User[] getAllUsers()
+    {
         return userDao.findAll();
     }
 }

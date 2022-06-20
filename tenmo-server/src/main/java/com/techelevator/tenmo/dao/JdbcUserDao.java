@@ -133,10 +133,10 @@ public class JdbcUserDao implements UserDao {
 
     public Transfer[] pendingRequests(Long currentUserId) {
         List<Transfer> transfers = new ArrayList<>();
-        String sql = "SELECT tra.account_from, tra.amount, tra.account_to FROM transfer tra\n" +
-                "JOIN account acc ON acc.account_id = tra.account_to\n" +
+        String sql = "SELECT tra.account_from, tra.amount, tra.account_to FROM transfer tra " +
+                "JOIN account acc ON acc.account_id = tra.account_to " +
                 "WHERE transfer_type_id = 1 AND acc.user_id = ?;";
-        SqlRowSet returnPending = jdbcTemplate.queryForRowSet(sql + currentUserId);
+        SqlRowSet returnPending = jdbcTemplate.queryForRowSet(sql, currentUserId);
         while (returnPending.next()) {
           Transfer pending = mapRowToTransfer(returnPending);
           transfers.add(pending);
