@@ -40,7 +40,7 @@ public class AccountMgmtService
     
     public Transfer[] viewTransferHistory()
     {
-        Transfer[] returnTransfer = null;
+        Transfer[] returnTransfer = new Transfer[0];
         try
         {
             ResponseEntity<Transfer[]> response = restTemplate.exchange(baseUrl + user.getUser().getId() + "/transferhistory", HttpMethod.GET, makeAuthEntity(), Transfer[].class);
@@ -53,7 +53,11 @@ public class AccountMgmtService
     }
 
     public void sendBucks(Long currentUserId, Long recipientId, BigDecimal amountToSend) {
-        Transfer transfer = new Transfer(2, null, null, recipientId, currentUserId, null, null, null, amountToSend, false);
+        Transfer transfer = new Transfer();
+        transfer.setUserFrom(currentUserId);
+        transfer.setUserTo(recipientId);
+        transfer.setTransferStatus(2);
+        transfer.setAmount(amountToSend);
         if (amountToSend.compareTo(BigDecimal.ZERO) > 0 && !currentUserId.equals(recipientId))
         {
             try
@@ -69,7 +73,12 @@ public class AccountMgmtService
     }
 
     public void requestBucks(Long currentUserId, Long requestFromId, BigDecimal amountToReceive) {
-        Transfer transfer = new Transfer(1, null, null, currentUserId, requestFromId, null, null, null, amountToReceive, true);
+        Transfer transfer = new Transfer();
+        transfer.setUserFrom(requestFromId);
+        transfer.setUserTo(currentUserId);
+        transfer.setTransferStatus(1);
+        transfer.setAmount(amountToReceive);
+        transfer.setTransferIsRequest(true);
         if (amountToReceive.compareTo(BigDecimal.ZERO) > 0 && !currentUserId.equals(requestFromId))
         {
             try {

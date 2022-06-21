@@ -1,6 +1,6 @@
 package com.techelevator.tenmo.controller;
 
-import com.techelevator.tenmo.dao.HelperDao;
+import com.techelevator.tenmo.dao.TransferDao;
 import com.techelevator.tenmo.dao.UserDao;
 import com.techelevator.tenmo.model.Transfer;
 import com.techelevator.tenmo.model.User;
@@ -17,12 +17,12 @@ public class AccountMgmtController
 {
     @Autowired
     private UserDao userDao;
-    private HelperDao helperDao;
+    private TransferDao transferDao;
     
-    public AccountMgmtController(UserDao userDao, HelperDao helperDao)
+    public AccountMgmtController(UserDao userDao, TransferDao transferDao)
     {
         this.userDao = userDao;
-        this.helperDao = helperDao;
+        this.transferDao = transferDao;
     }
     
     @RequestMapping(path = "/{id}/balance", method = RequestMethod.GET)
@@ -36,15 +36,15 @@ public class AccountMgmtController
     {
         System.out.println(transfer.getAccountFrom() + " " + transfer.getAccountTo() + " " + transfer.getAmount());
         BigDecimal money = transfer.getAmount();
-        transfer = helperDao.transferFixer(transfer);
+        transfer = transferDao.transferFixer(transfer);
         try
         {
             if (money.compareTo(userDao.getBalance(transfer.getUserFrom())) <= 0)
             {
-                System.out.println("Balance is more than amount to transfer!");
                 if (!transfer.getAccountFrom().equals(transfer.getAccountTo()))
                 {
-                    helperDao.createTransfer(transfer);
+                    System.out.println("activating server side logic from controller");
+                    transferDao.createTransfer(transfer);
                     userDao.sendAndReceive(transfer.getAmount(), transfer.getUserFrom(), transfer.getUserTo());
                 }
             }
@@ -58,7 +58,7 @@ public class AccountMgmtController
     @GetMapping(path = "/{id}/transferhistory")
     public Transfer[] getTransferHistory(@PathVariable long id)
     {
-        return userDao.getTransferHistory(id);
+        return transferDao.getTransferHistory(id);
     }
     
     @PutMapping(path = "/requestTransfer")
@@ -66,12 +66,12 @@ public class AccountMgmtController
     {
         // post a transfer to specific ID
         BigDecimal moneyRequested = transfer.getAmount();
-        transfer = helperDao.transferFixer(transfer);
+        transfer = transferDao.transferFixer(transfer);
         try
         {
             if (!transfer.getAccountFrom().equals(transfer.getAccountTo()))
             {
-                helperDao.createTransfer(transfer);
+                transferDao.createTransfer(transfer);
             }
         } catch (ResourceAccessException e)
         {
@@ -82,11 +82,11 @@ public class AccountMgmtController
     @GetMapping("/{id}/pendingList")
     public Transfer[] pendingRequests(@PathVariable long id)
     {
-        if (userDao.pendingRequests(id) == null)
+        if (transferDao.pendingRequests(id) == null)
         {
             System.out.println("No requests have been made!");
         }
-        return userDao.pendingRequests(id);
+        return transferDao.pendingRequests(id);
     }
     
     @GetMapping

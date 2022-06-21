@@ -2,7 +2,7 @@ package com.techelevator.tenmo.controller;
 
 import javax.validation.Valid;
 
-import com.techelevator.tenmo.dao.HelperDao;
+import com.techelevator.tenmo.dao.TransferDao;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
@@ -30,13 +30,13 @@ public class AuthenticationController {
     private final TokenProvider tokenProvider;
     private final AuthenticationManagerBuilder authenticationManagerBuilder;
     private UserDao userDao;
-    private HelperDao helperDao;
+    private TransferDao transferDao;
 
-    public AuthenticationController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, UserDao userDao, HelperDao helperDao) {
+    public AuthenticationController(TokenProvider tokenProvider, AuthenticationManagerBuilder authenticationManagerBuilder, UserDao userDao, TransferDao transferDao) {
         this.tokenProvider = tokenProvider;
         this.authenticationManagerBuilder = authenticationManagerBuilder;
         this.userDao = userDao;
-        this.helperDao = helperDao;
+        this.transferDao = transferDao;
     }
 
     @RequestMapping(value = "/login", method = RequestMethod.POST)
@@ -49,7 +49,7 @@ public class AuthenticationController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.createToken(authentication, false);
         
-        User user = helperDao.findByUsername(loginDto.getUsername());
+        User user = userDao.findByUsername(loginDto.getUsername());
 
         return new LoginResponse(jwt, user);
     }

@@ -131,7 +131,6 @@ public class App {
     
     private void viewPendingRequests()
     {
-        // TODO Auto-generated method stub
         consoleService.pendingRequestMenu(accountMgmtService.pendingRequest(currentUser.getUser().getId()));
         consoleService.printApproveOrRejectRequest();
     }

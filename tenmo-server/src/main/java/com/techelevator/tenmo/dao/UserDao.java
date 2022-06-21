@@ -7,20 +7,20 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import java.math.BigDecimal;
 
 public interface UserDao {
-
+    
+    
     User[] findAll();
-
-    User findByAccountId(Long userID) throws UsernameNotFoundException;
-
-    Transfer[] getTransferHistory(Long userID);
+    
+    int findIdByUsername(String username);
+    
+    User findByUsername(String username) throws UsernameNotFoundException;
     
     boolean create(String username, String password);
 
     BigDecimal getBalance(long id);
 
     void sendAndReceive(BigDecimal amountToSend, long currentUserId, long recipientId);
+    
 
-    Transfer[] pendingRequests(Long currentUserId);
 
-//    void incrementBalance(BigDecimal amountToSend, long recipientId);
 }

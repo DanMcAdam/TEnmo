@@ -1,20 +1,21 @@
 package com.techelevator.tenmo.dao;
 
 import com.techelevator.tenmo.model.Transfer;
-import com.techelevator.tenmo.model.User;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
-public class JdbcHelperDao implements HelperDao
+public class JdbcTransferDao implements TransferDao
 {
     
-    private JdbcTemplate jdbcTemplate;
+    private static JdbcTemplate jdbcTemplate;
     
-    public JdbcHelperDao(JdbcTemplate jdbcTemplate)
+    public JdbcTransferDao(JdbcTemplate jdbcTemplate)
     {
         this.jdbcTemplate = jdbcTemplate;
     }
@@ -30,6 +31,30 @@ public class JdbcHelperDao implements HelperDao
             userIdToAccId = jdbcTemplate.queryForObject(sql, Long.class, userId);
         } catch (DataAccessException ignore) { }
         return userIdToAccId;
+    }
+    
+    @Override
+    public Transfer[] getTransferHistory(Long userID)
+    {
+        String sql = "SELECT t.transfer_id, t.transfer_type_id, t.transfer_status_id, t.account_from, t.account_to, t.amount FROM transfer t " +
+                "LEFT OUTER JOIN account acto ON acto.account_id = t.account_to " +
+                "LEFT OUTER JOIN account acfrom ON acfrom.account_id = t.account_from " +
+                "WHERE acto.user_id = ? OR acfrom.user_id = ?;";
+        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, userID, userID);
+        List<Transfer> transferList = new ArrayList<>();
+        Transfer[] transferArray;
+        while (rowSet.next())
+        {
+            System.out.println("Adding transfer to list from rowset");
+            transferList.add(mapRowToTransfer(rowSet));
+        }
+        transferArray = new Transfer[transferList.size()];
+        for (int i = 0; i < transferList.size(); i++)
+        {
+            System.out.println(transferList.get(i).toString());
+            transferArray[i] = transferList.get(i);
+        }
+        return transferArray;
     }
     
     @Override
@@ -54,51 +79,23 @@ public class JdbcHelperDao implements HelperDao
     }
     
     @Override
-    public User findByAccountId(Long userID) throws UsernameNotFoundException
-    {
-        String sql = "SELECT * FROM tenmo_user ten " +
-                "JOIN account acc ON acc.user_id = ten.user_id " +
-                "WHERE acc.account_id = ?;";
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, userID);
-        if (rowSet.next())
-        {
-            return mapRowToUser(rowSet);
+    public Transfer[] pendingRequests(Long currentUserId) {
+        List<Transfer> transfers = new ArrayList<>();
+        String sql = "SELECT tra.* FROM transfer tra " +
+                "JOIN account acc ON acc.account_id = tra.account_from " +
+                "WHERE transfer_status_id = 1 AND acc.user_id = ?;";
+        SqlRowSet returnPending = jdbcTemplate.queryForRowSet(sql, currentUserId);
+        while (returnPending.next()) {
+            Transfer pending = mapRowToTransfer(returnPending);
+            transfers.add(pending);
         }
-        throw new UsernameNotFoundException("User with ID" + userID + " was not found.");
+        Transfer[] pendings = new Transfer[transfers.size()];
+        for (int i = 0; i < transfers.size(); i++) {
+            pendings[i] = transfers.get(i);
+        }
+        return pendings;
     }
     
-    @Override
-    public User findByUsername(String username) throws UsernameNotFoundException
-    {
-        String sql = "SELECT user_id, username, password_hash FROM tenmo_user WHERE username ILIKE ?;";
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, username);
-        if (rowSet.next())
-        {
-            return mapRowToUser(rowSet);
-        }
-        throw new UsernameNotFoundException("User " + username + " was not found.");
-    }
-    
-    @Override
-    public int findIdByUsername(String username)
-    {
-        String sql = "SELECT user_id FROM tenmo_user WHERE username ILIKE ?;";
-        Integer id = jdbcTemplate.queryForObject(sql, Integer.class, username);
-        if (id != null)
-        {
-            return id;
-        }
-        else
-        {
-            return -1;
-        }
-    }
-
-//    public String findUsernameById(Long currentUserId) {
-//        String sql = "SELECT tu.username FROM tenmo_user tu\n" +
-//                "WHERE tu.user_id = 1001\n";
-//
-//    }
     
     
     @Override
@@ -112,34 +109,21 @@ public class JdbcHelperDao implements HelperDao
     }
     
     
-    private Transfer mapRowToTransfer(SqlRowSet rs)
+    static Transfer mapRowToTransfer(SqlRowSet rs)
     {
         Transfer transfer = new Transfer();
         transfer.setTransferId(rs.getLong("transfer_id"));
         transfer.setTransferStatus(rs.getInt("transfer_status_id"));
         transfer.setAccountFrom(rs.getLong("account_from"));
-        transfer.setUserFromString(findByAccountId(transfer.getAccountFrom()).getUsername());
+        transfer.setUserFromString(JdbcUserDao.findByAccountId(transfer.getAccountFrom()).getUsername());
         transfer.setAccountTo(rs.getLong("account_to"));
-        transfer.setUserToString(findByAccountId(transfer.getAccountTo()).getUsername());
+        transfer.setUserToString(JdbcUserDao.findByAccountId(transfer.getAccountTo()).getUsername());
         transfer.setAmount(rs.getBigDecimal("amount"));
         transfer.setTransferIsRequest(rs.getInt("transfer_type_id") == 1);
-        transfer.setUserTo(findByAccountId(transfer.getAccountTo()).getId());
-        transfer.setUserFrom(findByAccountId(transfer.getAccountFrom()).getId());
-        
-        //todo: finish maprowtotransfer
+        transfer.setUserTo(JdbcUserDao.findByAccountId(transfer.getAccountTo()).getId());
+        transfer.setUserFrom(JdbcUserDao.findByAccountId(transfer.getAccountFrom()).getId());
         
         return transfer;
-    }
-    
-    private User mapRowToUser(SqlRowSet rs)
-    {
-        User user = new User();
-        user.setId(rs.getLong("user_id"));
-        user.setUsername(rs.getString("username"));
-        user.setPassword(rs.getString("password_hash"));
-        user.setActivated(true);
-        user.setAuthorities("USER");
-        return user;
     }
     
     

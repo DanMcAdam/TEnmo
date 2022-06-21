@@ -65,7 +65,7 @@ public class ConsoleService {
             System.out.println("Amount of transfers = " + transfers.length);
             for (Transfer transfer : transfers) {
                 String targetString;
-                if (Objects.equals(userID, transfer.getAccountFrom())) {
+                if (Objects.equals(userID, transfer.getUserFrom())) {
                     targetString = "To: " + transfer.getUserToString();
                 } else {
                     targetString = "From: " + transfer.getUserFromString();
