@@ -19,25 +19,26 @@ public class AccountMgmtService
     private final String baseUrl;
     private final RestTemplate restTemplate = new RestTemplate();
     private AuthenticatedUser user;
-    
+
     public AccountMgmtService(String url, AuthenticatedUser user)
     {
         this.baseUrl = url;
         this.user = user;
     }
-    
+
     public BigDecimal viewCurrentBalance() {
         BigDecimal returnDecimal = BigDecimal.valueOf(0);
         try {
             ResponseEntity<BigDecimal> response = restTemplate.exchange(baseUrl + user.getUser().getId() + "/balance", HttpMethod.GET, makeAuthEntity(), BigDecimal.class);
             returnDecimal = response.getBody();
-        } catch (RestClientResponseException | ResourceAccessException e)
+        }
+        catch (RestClientResponseException | ResourceAccessException e)
         {
             BasicLogger.log(e.getMessage());
         }
         return returnDecimal;
     }
-    
+
     public Transfer[] viewTransferHistory()
     {
         Transfer[] returnTransfer = new Transfer[0];
@@ -63,7 +64,7 @@ public class AccountMgmtService
             try
             {
                 restTemplate.put(baseUrl, makeAuthEntityTransfer(transfer));
-        
+
             } catch (RestClientResponseException | ResourceAccessException e)
             {
                 BasicLogger.log(e.getMessage());
@@ -88,7 +89,7 @@ public class AccountMgmtService
             }
         }
         else System.out.println("That is not a valid transaction, please try again");
-}
+    }
 
     public User[] getUserList() {
         User[] returnUser = null;
@@ -119,16 +120,25 @@ public class AccountMgmtService
     }
 
     public void approveOrReject(long decision, Transfer transfer) {
-        if (decision == 1) {
-            restTemplate.put(baseUrl + "/confirm", makeAuthEntityTransfer(transfer));
+        try
+        {
+            if (decision == 1)
+            {
+                restTemplate.put(baseUrl + "/confirm", makeAuthEntityTransfer(transfer));
+            }
+            if (decision == 2)
+            {
+                restTemplate.put(baseUrl + "/reject", makeAuthEntityTransfer(transfer));
+            }
         }
-        if (decision == 2) {
-            restTemplate.put(baseUrl + "/reject", makeAuthEntityTransfer(transfer));
+        catch (RestClientResponseException | ResourceAccessException e)
+        {
+            BasicLogger.log(e.getMessage());
         }
     }
-    
-    
-    
+
+
+
     private HttpEntity<Void> makeAuthEntity() {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(user.getToken());
@@ -141,5 +151,5 @@ public class AccountMgmtService
         headers.setContentType(MediaType.APPLICATION_JSON);
         return new HttpEntity<>(transfer, headers);
     }
-    
+
 }

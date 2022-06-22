@@ -34,7 +34,6 @@ public class AccountMgmtController
     @PutMapping(path = "")
     public void sendBucks(@RequestBody Transfer transfer)
     {
-        System.out.println(transfer.getAccountFrom() + " " + transfer.getAccountTo() + " " + transfer.getAmount());
         BigDecimal money = transfer.getAmount();
         transfer = transferDao.transferFixer(transfer);
         try

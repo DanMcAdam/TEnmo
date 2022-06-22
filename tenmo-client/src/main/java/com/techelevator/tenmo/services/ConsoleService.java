@@ -113,29 +113,36 @@ public class ConsoleService {
 
 
     // these menus could be paired down to one menu, unless you want each of them to be different.
-    public void printSendMoneyMenu(User[] users) {
+    public void printSendMoneyMenu(User[] users, long userId) {
         System.out.println("-------------------------------------------");
         System.out.println("Users");
         System.out.println("ID          Name");
         System.out.println("-------------------------------------------");
         for (User user :
                 users) {
-            System.out.println(user.getId() + "         " + user.getUsername());
+            if (user.getId() != userId)
+            {
+                System.out.println(user.getId() + "         " + user.getUsername());
+            }
         }
         System.out.println("-------------------------------------------");
     }
 
-    public void printRequestMoneyMenu(User[] users) {
+    public void printRequestMoneyMenu(User[] users, long userId) {
         System.out.println("-------------------------------------------");
         System.out.println("Users");
         System.out.println("ID          Name");
         System.out.println("-------------------------------------------");
         for (User user :
                 users) {
-            System.out.println(user.getId() + "         " + user.getUsername());
+            if (user.getId() != userId)
+            {
+                System.out.println(user.getId() + "         " + user.getUsername());
+            }
         }
         System.out.println("-------------------------------------------");
     }
+
 
     public void pendingRequestMenu(Transfer[] transfer) {
         System.out.println("-------------------------------------------");

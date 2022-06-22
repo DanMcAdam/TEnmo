@@ -156,7 +156,7 @@ public class App {
 
     // decided to return a boolean because it's a PUT method.
     private void sendBucks() {
-        consoleService.printSendMoneyMenu(accountMgmtService.getUserList());
+        consoleService.printSendMoneyMenu(accountMgmtService.getUserList(), currentUser.getUser().getId());
         long receiverId = consoleService.promptForInt("Enter ID of user you are sending to (0 to cancel): ");
         BigDecimal amountToSend = consoleService.promptForBigDecimal("Enter amount: ");
         accountMgmtService.sendBucks(currentUser.getUser().getId(), receiverId, amountToSend);
@@ -164,7 +164,7 @@ public class App {
     }
     
     private void requestBucks() {
-        consoleService.printRequestMoneyMenu(accountMgmtService.getUserList());
+        consoleService.printRequestMoneyMenu(accountMgmtService.getUserList(), currentUser.getUser().getId());
         long receiverId = consoleService.promptForInt("Enter ID of user you are requesting from (0 to cancel): ");
         BigDecimal amountToReceive = consoleService.promptForBigDecimal("Enter amount: ");
         accountMgmtService.requestBucks(currentUser.getUser().getId(), receiverId, amountToReceive);

@@ -1,6 +1,8 @@
 package com.techelevator.tenmo.dao;
 
+import com.techelevator.tenmo.controller.TransactionExceptions;
 import com.techelevator.tenmo.model.User;
+import com.techelevator.tenmo.util.BasicLogger;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
@@ -13,16 +15,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Component
-public class JdbcUserDao implements UserDao {
+public class JdbcUserDao implements UserDao
+{
 
     private static final BigDecimal STARTING_BALANCE = new BigDecimal("1000.00");
     private static JdbcTemplate jdbcTemplate;
 
-    public JdbcUserDao(JdbcTemplate jdbcTemplate) {
+    public JdbcUserDao(JdbcTemplate jdbcTemplate)
+    {
         this.jdbcTemplate = jdbcTemplate;
     }
-    
-    
+
 
     public static User findByAccountId(Long userID) throws UsernameNotFoundException
     {
@@ -30,29 +33,46 @@ public class JdbcUserDao implements UserDao {
                 "JOIN account acc ON acc.user_id = ten.user_id " +
                 "WHERE acc.account_id = ?;";
         SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, userID);
-        if (rowSet.next())
+        try
         {
-            return JdbcUserDao.mapRowToUser(rowSet);
+            if (rowSet.next())
+            {
+                return JdbcUserDao.mapRowToUser(rowSet);
+            }
         }
-        throw new UsernameNotFoundException("User with ID" + userID + " was not found.");
+        catch (TransactionExceptions.InvalidUserInformation e)
+        {
+            System.err.println("Trouble mapping row to user");
+        }
+        return null;
     }
-    
+
     @Override
-    public User[] findAll() {
+    public User[] findAll()
+    {
         List<User> users = new ArrayList<>();
         String sql = "SELECT user_id, username, password_hash FROM tenmo_user;";
         SqlRowSet results = jdbcTemplate.queryForRowSet(sql);
-        while(results.next()) {
-            User user = mapRowToUser(results);
-            users.add(user);
-        }
-        User[] users1 = new User[users.size()];
-        for (int i = 0; i < users.size(); i++) {
-            users1[i] = users.get(i);
+        User[] users1 = new User[0];
+        try
+        {
+            while (results.next())
+            {
+                User user = mapRowToUser(results);
+                users.add(user);
+            }
+            users1 = new User[users.size()];
+            for (int i = 0; i < users.size(); i++)
+            {
+                users1[i] = users.get(i);
+            }
+        } catch (TransactionExceptions.InvalidUserInformation e)
+        {
+            System.err.println("Trouble mapping row to user");
         }
         return users1;
     }
-    
+
     @Override
     public int findIdByUsername(String username)
     {
@@ -67,19 +87,26 @@ public class JdbcUserDao implements UserDao {
             return -1;
         }
     }
-    
+
     @Override
     public User findByUsername(String username) throws UsernameNotFoundException
     {
         String sql = "SELECT user_id, username, password_hash FROM tenmo_user WHERE username ILIKE ?;";
-        SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, username);
-        if (rowSet.next())
+        try
         {
-            return mapRowToUser(rowSet);
+            SqlRowSet rowSet = jdbcTemplate.queryForRowSet(sql, username);
+            if (rowSet.next())
+            {
+                return mapRowToUser(rowSet);
+            }
+        }
+        catch (TransactionExceptions.InvalidUserInformation e)
+        {
+            System.err.println("Trouble mapping row to user");
         }
         throw new UsernameNotFoundException("User " + username + " was not found.");
     }
-    
+
     @Override
     public boolean create(String username, String password)
     {
@@ -91,18 +118,21 @@ public class JdbcUserDao implements UserDao {
         try
         {
             newUserId = jdbcTemplate.queryForObject(sql, Integer.class, username, password_hash);
-        }
-        catch (DataAccessException e)
+        } catch (DataAccessException e)
         {
+            BasicLogger.log(e.getMessage());
             return false;
         }
 
         // create account
         sql = "INSERT INTO account (user_id, balance) values(?, ?)";
-        try {
-            jdbcTemplate.update(sql, newUserId, STARTING_BALANCE);
-        } catch (DataAccessException e)
+        try
         {
+            jdbcTemplate.update(sql, newUserId, STARTING_BALANCE);
+        }
+        catch (DataAccessException e)
+        {
+            BasicLogger.log(e.getMessage());
             return false;
         }
 
@@ -119,29 +149,47 @@ public class JdbcUserDao implements UserDao {
         try
         {
             jdbcTemplate.update(sqlDecrease + sqlIncrease, amountToSend, currentUserId, amountToSend, recipientId);
-        } catch (DataAccessException ignored) {} // build logger class, or import BasicLogger;
+        }
+        catch (DataAccessException ignored)
+        {
+            BasicLogger.log(ignored.getMessage());
+            System.err.println("Error updating database");
+        }
     }
 
     @Override
-    public BigDecimal getBalance(long id) {
+    public BigDecimal getBalance(long id)
+    {
         String sql = "SELECT balance FROM account WHERE user_id = ?";
         BigDecimal balance = null;
-        try {
+        try
+        {
             balance = jdbcTemplate.queryForObject(sql, BigDecimal.class, id);
-        } catch (DataAccessException e) {
-            System.out.println("Error accessing database");
+        } catch (DataAccessException e)
+        {
+            BasicLogger.log(e.getMessage());
+            System.err.println("Error accessing database");
         }
-            return balance;
+        return balance;
     }
-    
 
-    static User mapRowToUser(SqlRowSet rs) {
+
+    static User mapRowToUser(SqlRowSet rs) throws TransactionExceptions.InvalidUserInformation
+    {
         User user = new User();
-        user.setId(rs.getLong("user_id"));
-        user.setUsername(rs.getString("username"));
-        user.setPassword(rs.getString("password_hash"));
-        user.setActivated(true);
-        user.setAuthorities("USER");
-        return user;
+        try
+        {
+            user.setId(rs.getLong("user_id"));
+            user.setUsername(rs.getString("username"));
+            user.setPassword(rs.getString("password_hash"));
+            user.setActivated(true);
+            user.setAuthorities("USER");
+            return user;
+        }
+        catch (Exception e)
+        {
+            BasicLogger.log(e.getMessage());
+            throw new TransactionExceptions.InvalidUserInformation();
+        }
     }
 }

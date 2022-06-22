@@ -17,6 +17,6 @@ public interface TransferDao
 
     void approveRequest(Long transferId);
 
-    Transfer createTransfer(Transfer transfer);
+    void createTransfer(Transfer transfer);
     
 }
