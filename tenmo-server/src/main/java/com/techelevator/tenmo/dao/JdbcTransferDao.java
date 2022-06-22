@@ -32,6 +32,7 @@ public class JdbcTransferDao implements TransferDao
         } catch (DataAccessException ignore) { }
         return userIdToAccId;
     }
+
     
     @Override
     public Transfer[] getTransferHistory(Long userID)
@@ -94,6 +95,24 @@ public class JdbcTransferDao implements TransferDao
             pendings[i] = transfers.get(i);
         }
         return pendings;
+    }
+
+    @Override
+    public void deleteTransfer(Long transferId) {
+        String sql = "SELECT tra.* FROM transfer tra " +
+                "JOIN account acc ON acc.account_id = tra.account_from " +
+                "WHERE transfer_status_id = 1 AND acc.user_id = ?";
+        String deleteSql = "DELETE FROM transfer WHERE transfer_id = ?;";
+        jdbcTemplate.update(sql + deleteSql);
+    }
+
+    @Override
+    public void approveRequest(Long transferId) {
+        String sql = "UPDATE transfer SET transfer_status_id = 2\n" +
+                "WHERE transfer_id = ?;";
+        try {
+            jdbcTemplate.update(sql, transferId);
+        } catch (DataAccessException ignore) {}
     }
     
     

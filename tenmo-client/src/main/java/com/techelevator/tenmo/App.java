@@ -132,7 +132,11 @@ public class App {
     private void viewPendingRequests()
     {
         consoleService.pendingRequestMenu(accountMgmtService.pendingRequest(currentUser.getUser().getId()));
+        long transferId = consoleService.promptForInt("Please enter transfer ID to approve/reject (0 to cancel): ");
         consoleService.printApproveOrRejectRequest();
+        long decision = consoleService.promptForInt("Please choose an option: ");
+        accountMgmtService.approveOrReject(decision, transferId);
+
     }
 
 
