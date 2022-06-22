@@ -144,7 +144,7 @@ public class ConsoleService {
         System.out.println("-------------------------------------------");
         for (Transfer value : transfer) {
             System.out.println(value.getTransferId() +
-                    "        " + value.getUserToString() + "                 " + value.getAmount());
+                    "        " + value.getUserToString() + "                " + value.getAmount());
         }
         System.out.println("-------------------------------------------");
         System.out.println();
@@ -155,7 +155,6 @@ public class ConsoleService {
         System.out.println("2: Reject");
         System.out.println("0: Don't approve or Reject");
         System.out.println("---------");
-        promptForInt("Please choose an option: ");
     }
 
     public UserCredentials promptForCredentials() {
