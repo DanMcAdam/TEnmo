@@ -88,18 +88,23 @@ public class AccountMgmtController
         }
         return transferDao.pendingRequests(id);
     }
-
+    
     @PutMapping(path = "/confirm")
-    public void approveOrReject(Long decision, @RequestBody Transfer transfer) {
-        if (decision == 1) {
-            System.out.println("You have approved the request!");
+    public void approve(@RequestBody Transfer transfer)
+    {
+        System.out.println("You have approved the request!");
+        if (transfer.getAmount().compareTo(userDao.getBalance(transfer.getUserFrom())) <= 0)
+        {
             transferDao.approveRequest(transfer.getTransferId());
             userDao.sendAndReceive(transfer.getAmount(), transfer.getUserFrom(), transfer.getUserTo());
         }
-        if (decision == 2) {
-            System.out.println("You have canceled the request");
-            transferDao.deleteTransfer(transfer.getTransferId());
-        }
+    }
+    
+    @PutMapping(path = "/reject")
+    public void reject(@RequestBody Transfer transfer)
+    {
+        System.out.println("You have canceled the request");
+        transferDao.deleteTransfer(transfer.getTransferId());
     }
     
     @GetMapping

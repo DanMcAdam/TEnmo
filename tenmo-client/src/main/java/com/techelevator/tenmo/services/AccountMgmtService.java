@@ -118,20 +118,12 @@ public class AccountMgmtService
         return returnPending;
     }
 
-    public void approveOrReject(long decision, long transferId) {
-        Transfer transfer = new Transfer();
-        transfer.setAccountFrom(user.getUser().getId());
-        transfer.setAccountTo(transferId);
-        transfer.setUserFrom(user.getUser().getId());
-        transfer.setUserTo(transfer.getUserTo());
-        transfer.setTransferStatus(1);
-        transfer.setAmount(transfer.getAmount());
-        transfer.setTransferIsRequest(false);
+    public void approveOrReject(long decision, Transfer transfer) {
         if (decision == 1) {
             restTemplate.put(baseUrl + "/confirm", makeAuthEntityTransfer(transfer));
         }
         if (decision == 2) {
-            restTemplate.delete(baseUrl + "/confirm", transferId, makeAuthEntityTransfer(transfer));
+            restTemplate.put(baseUrl + "/reject", makeAuthEntityTransfer(transfer));
         }
     }
     

@@ -99,16 +99,13 @@ public class JdbcTransferDao implements TransferDao
 
     @Override
     public void deleteTransfer(Long transferId) {
-        String sql = "SELECT tra.* FROM transfer tra " +
-                "JOIN account acc ON acc.account_id = tra.account_from " +
-                "WHERE transfer_status_id = 1 AND acc.user_id = ?";
         String deleteSql = "DELETE FROM transfer WHERE transfer_id = ?;";
-        jdbcTemplate.update(sql + deleteSql);
+        jdbcTemplate.update(deleteSql, transferId);
     }
 
     @Override
     public void approveRequest(Long transferId) {
-        String sql = "UPDATE transfer SET transfer_status_id = 2\n" +
+        String sql = "UPDATE transfer SET transfer_status_id = 2 " +
                 "WHERE transfer_id = ?;";
         try {
             jdbcTemplate.update(sql, transferId);

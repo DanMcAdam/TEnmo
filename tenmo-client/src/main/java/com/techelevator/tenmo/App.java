@@ -131,11 +131,25 @@ public class App {
     
     private void viewPendingRequests()
     {
-        consoleService.pendingRequestMenu(accountMgmtService.pendingRequest(currentUser.getUser().getId()));
+        Transfer[] transferArray = accountMgmtService.pendingRequest(currentUser.getUser().getId());
+        Transfer chosenTransfer = null;
+        consoleService.pendingRequestMenu(transferArray);
         long transferId = consoleService.promptForInt("Please enter transfer ID to approve/reject (0 to cancel): ");
+        for (int i = 0; i < transferArray.length; i++)
+        {
+            if (transferArray[i].getTransferId().equals(transferId))
+            {
+                chosenTransfer = transferArray[i];
+            }
+        }
+        if (chosenTransfer == null)
+        {
+            System.out.println("I'm sorry, that's not a valid transfer.");
+            mainMenu();
+        }
         consoleService.printApproveOrRejectRequest();
         long decision = consoleService.promptForInt("Please choose an option: ");
-        accountMgmtService.approveOrReject(decision, transferId);
+        accountMgmtService.approveOrReject(decision, chosenTransfer);
 
     }
 
